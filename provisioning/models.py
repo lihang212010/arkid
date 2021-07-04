@@ -10,6 +10,7 @@ from .constants import ProvisioningMode, ProvisioningStatus, ProvisioningType, A
 from scim2_client.scim_service import ScimService
 from scim_client.async_client import AsyncSCIMClient
 from aiohttp import BasicAuth, ClientSession
+from scim2_filter_parser.attr_paths import AttrPath
 
 
 class Config(BaseModel):
@@ -32,8 +33,8 @@ class Config(BaseModel):
     # MODE_CHOICES = ((ProvisioningMode.Automatic.value, 'Automatic'),)
 
     app = models.ForeignKey(App, on_delete=models.PROTECT)
-    sync_type = models.CharField(max_length=32, choices=SYNC_TYPE, default=ProvisioningType.downstream.value)
-    auth_type = models.CharField(max_length=32, choices=AUTH_TYPE, default=AuthenticationType.token.value)
+    sync_type = models.IntegerField(max_length=32, choices=SYNC_TYPE, default=ProvisioningType.downstream.value)
+    auth_type = models.IntegerField(max_length=32, choices=AUTH_TYPE, default=AuthenticationType.token.value)
 
     base_url = models.CharField(max_length=1024, blank=False, null=True)
     token = models.CharField(max_length=256, blank=True, null=True)
@@ -44,19 +45,21 @@ class Config(BaseModel):
     username = models.CharField(max_length=256, blank=True, null=True)
     password = models.CharField(max_length=256, blank=True, null=True)
 
-    def should_provision(self, user):
+    def should_provision_user(self, user):
+        return True
+
+    def should_provision_group(self, group):
         return True
 
     def get_scim_client(self, cookies=None):
         if self.auth_type == AuthenticationType.basic.value:
             basic_auth = BasicAuth(login=self.username, password=self.password)
-            client = AsyncSCIMClient(base_url=self.base_url, auth=basic_auth, cookies=cookies)
+            client = AsyncSCIMClient('', base_url=self.base_url, auth=basic_auth, cookies=cookies)
         else:
-            client = AsyncSCIMClient(base_url=self.base_url, token=self.token, cookies=cookies)
+            client = AsyncSCIMClient(self.token, base_url=self.base_url, cookies=cookies)
         return client
 
     def test_connection(self):
-
         client = self.get_scim_client()
         resp = asyncio.run(client.api_call(http_verb='GET', path='ServiceProviderConfig'))
         if resp.status_code != 200:
@@ -79,6 +82,22 @@ class Config(BaseModel):
         }
         """
         # TODO 支持复杂类型的映射: emails[type eq "work"].value
+        attr_map = {
+        # attr, sub attr, uri
+        ('externalId', None, None): 'scim_external_id',
+        ('userName', None, None): 'username',
+        ('name', 'familyName', None): 'last_name',
+        ('familyName', None, None): 'last_name',
+        ('name', 'givenName', None): 'first_name',
+        ('givenName', None, None): 'first_name',
+        ('active', None, None): 'is_active',
+        ('nickName', None, None): 'nickname',
+        ('title', None, None): 'job_title',
+        ('emails', 'type', None): 'email',
+        ('emails', 'value', None): 'email',
+        ('phoneNumbers', 'value', None): 'mobile',
+        ('phoneNumbers', 'type', None): 'mobile',
+    }
         data = {}
         mappings = self.app_profile_mappings.all()
         if not mappings:
@@ -88,7 +107,37 @@ class Config(BaseModel):
             if not value:
                 continue
             else:
-                data[mp.target_attribute] = value
+                # data[mp.target_attribute] = value
+                path = mp.target_attribute
+                filter_ = path + ' eq "{}"'.format(value)
+                attr_path = AttrPath(filter_, attr_map)
+                if not list(attr_path):
+                    print('No attribute path found in request')
+                    continue
+                if attr_path.is_complex:
+                    attr, sub_attr, uri = attr_path.first_path
+                    attr_name = attr if not uri else f'{uri}:{attr}'
+                    if attr_name in data and isinstance(data[attr_name], list):
+                        value_list = data[attr_name]
+                    else:
+                        data[attr_name] = []
+                        value_list = data[attr_name]
+
+                    d = {}
+                    for p, value in attr_path.params_by_attr_paths.items():
+                        attr, sub_attr, uri = p
+                        d[sub_attr] = value
+                    value_list.append(d)
+                else:
+                    attr, sub_attr, uri = attr_path.first_path
+                    attr_name = attr if not uri else f'{uri}:{attr}'
+                    if not sub_attr:
+                        data[attr_name] = value
+                    else:
+                        if attr_name in data and isinstance(data[attr_name], dict):
+                            data[attr_name][sub_attr] = value
+                        else:
+                            data[attr_name] = {sub_attr: value}
         return data
 
     def get_match_filter(self, user):
