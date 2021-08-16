@@ -1,7 +1,7 @@
 
 from rest_framework.exceptions import ValidationError
 from tenant.models import (
-    Tenant, TenantConfig, TenantPasswordComplexity,
+    Tenant, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
     TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig,
 )
 from rest_framework import serializers
@@ -310,6 +310,26 @@ class TenantContactsConfigFunctionSwitchSerializer(BaseDynamicFieldModelSerializ
             'data',
         )
 
+class DesktopConfigSerializer(serializers.Serializer):
+    access_with_desktop = serializers.BooleanField(
+        label=_("用户是否能看到桌面")
+    )
+
+    icon_custom = serializers.BooleanField(
+        label=_("用户是否可以自主调整桌面图标的位置")
+    )
+
+
+
+class TenantDesktopConfigSerializer(BaseDynamicFieldModelSerializer):
+    data = DesktopConfigSerializer()
+
+    class Meta:
+        model = TenantDesktopConfig
+
+        fields = (
+            'data',
+        )
 
 class InfoVisibilitySerializer(serializers.Serializer):
     visible_type = serializers.ChoiceField(choices=(('所有人可见', '部分人可见')), label=_('可见类型'))

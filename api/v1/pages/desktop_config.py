@@ -6,5 +6,18 @@ name = '桌面设置'
 
 extend_schema_tags(
     tag,
-    name
+    name,
+    {
+        "type": "form_page",
+        "init": {
+            'path': '/api/v1/tenant/{tenant_uuid}/desktopconfig/',
+            'method': 'get'
+        },
+        'global': {
+            'update': {
+                'path': '/api/v1/tenant/{tenant_uuid}/desktopconfig/',
+                'method': 'put'
+            }
+        }
+    }
 )
