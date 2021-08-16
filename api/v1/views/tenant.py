@@ -7,10 +7,10 @@ from openapi.utils import extend_schema
 from rest_framework.response import Response
 from tenant.models import (
     Tenant, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
-    TenantContactsConfig, TenantContactsUserFieldConfig, TenantPrivacyNotice,
+    TenantContactsConfig, TenantContactsUserFieldConfig, TenantPrivacyNotice, TenantUserProfileConfig,
 )
 from api.v1.serializers.tenant import (
-    TenantDesktopConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer,
+    TenantDesktopConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer, TenantUserProfileConfigSerializer,
     UserNameRegisterRequestSerializer, MobileLoginResponseSerializer, MobileRegisterResponseSerializer,
     UserNameRegisterResponseSerializer, UserNameLoginResponseSerializer, TenantConfigSerializer,
     UserNameLoginRequestSerializer, TenantPasswordComplexitySerializer, TenantContactsConfigFunctionSwitchSerializer,
@@ -1127,7 +1127,20 @@ class TenantDesktopConfigView(generics.RetrieveUpdateAPIView):
         tenant_uuid = self.kwargs['tenant_uuid']
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
         return TenantDesktopConfig.active_objects.filter(tenant=tenant).first()
-        
+
+@extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
+class TenantUserProfileConfigView(generics.RetrieveUpdateAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = TenantUserProfileConfigSerializer
+ 
+    def get_object(self):
+        tenant_uuid = self.kwargs['tenant_uuid']
+        tenant = Tenant.active_objects.get(uuid=tenant_uuid)
+        return TenantUserProfileConfig.active_objects.filter(tenant=tenant).first()
+
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantContactsConfigInfoVisibilityDetailView(generics.RetrieveUpdateAPIView):
 

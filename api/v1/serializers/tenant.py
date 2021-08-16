@@ -2,7 +2,7 @@
 from rest_framework.exceptions import ValidationError
 from tenant.models import (
     Tenant, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
-    TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig,
+    TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig, TenantUserProfileConfig,
 )
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
@@ -322,10 +322,46 @@ class DesktopConfigSerializer(serializers.Serializer):
 
 
 class TenantDesktopConfigSerializer(BaseDynamicFieldModelSerializer):
-    data = DesktopConfigSerializer()
+    data = DesktopConfigSerializer(
+        label=_("设置")
+    )
 
     class Meta:
         model = TenantDesktopConfig
+
+        fields = (
+            'data',
+        )
+
+class UserProfileConfigSerializer(serializers.Serializer):
+    logout_by_self = serializers.BooleanField(
+        label=_("是否允许用户注销自己的账号")
+    )
+
+    access_with_token = serializers.BooleanField(
+        label=_("是否允许用户查看自己当前Token")
+    )
+
+    expire_token = serializers.BooleanField(
+        label=_("是否允许用户手动让Token过期")
+    )
+
+    record_with_ipaddress = serializers.BooleanField(
+        label=_("是否记录用户的IP地址")
+    )
+
+    record_with_device = serializers.BooleanField(
+        label=_("是否记录用户的设备信息")
+    )
+
+
+class TenantUserProfileConfigSerializer(BaseDynamicFieldModelSerializer):
+    data = UserProfileConfigSerializer(
+        label=_("设置")
+    )
+
+    class Meta:
+        model = TenantUserProfileConfig
 
         fields = (
             'data',
