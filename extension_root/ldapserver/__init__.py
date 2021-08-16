@@ -16,13 +16,6 @@ class LdapServerExtension(InMemExtension):
     """
 
     def start(self, runtime: Runtime, *args, **kwargs):
-
-        runtime.register_authorization_agent(
-            id='microsoft_ad',
-            name='微软AD',
-            description='微软AD',
-        )
-
         runtime.register_authorization_agent(
             id='ldap_agent',
             name='LDAP身份代理',
