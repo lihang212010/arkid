@@ -1,8 +1,8 @@
 from openapi.utils import extend_schema_tags
 
-tag = 'sub_admin_config'
+tag = 'subadmin'
 path = tag
-name = '子管理员设置'
+name = '子管理员'
 
 extend_schema_tags(
     tag,

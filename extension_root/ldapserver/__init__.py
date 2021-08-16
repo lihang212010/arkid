@@ -16,11 +16,10 @@ class LdapServerExtension(InMemExtension):
     """
 
     def start(self, runtime: Runtime, *args, **kwargs):
-
         runtime.register_authorization_agent(
             id='ldap_agent',
-            name='LDAP 身份代理',
-            description='LDAP 身份代理',
+            name='LDAP身份代理',
+            description='LDAP身份代理',
         )
         # extension = Extension.active_objects.filter(
         #     is_del=False,

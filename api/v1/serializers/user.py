@@ -51,7 +51,7 @@ class UserSerializer(BaseDynamicFieldModelSerializer):
     )
     set_groups = create_foreign_key_field(serializers.ListField)(
         model_cls=User,
-        field_name='id',
+        field_name='uuid',
         page=group.group_tree_tag,
         child=serializers.CharField(),
         default=[],
@@ -63,7 +63,7 @@ class UserSerializer(BaseDynamicFieldModelSerializer):
 
     set_permissions = create_foreign_key_field(serializers.ListField)(
         model_cls=Permission,
-        field_name='id',
+        field_name='uuid',
         page=permission.tag,
         child=serializers.CharField(),
         default=[],

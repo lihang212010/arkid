@@ -104,6 +104,32 @@ class TenantContactsConfig(BaseModel):
         return self.tenant.uuid
 
 
+class TenantDesktopConfig(BaseModel):
+    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, verbose_name='租户')
+    data = models.JSONField(blank=True, default=dict)
+
+    @property
+    def tenant_uuid(self):
+        return self.tenant.uuid
+
+class TenantPasswordConfig(BaseModel):
+    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, verbose_name='租户')
+    data = models.JSONField(blank=True, default=dict)
+
+    @property
+    def tenant_uuid(self):
+        return self.tenant.uuid
+
+
+class TenantUserProfileConfig(BaseModel):
+    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, verbose_name='租户')
+    data = models.JSONField(blank=True, default=dict)
+
+    @property
+    def tenant_uuid(self):
+        return self.tenant.uuid
+
+
 class TenantContactsUserFieldConfig(BaseModel):
     # 分组可见性
     # visible_type 所有人可见 部分人可见

@@ -1,8 +1,8 @@
 
 from rest_framework.exceptions import ValidationError
 from tenant.models import (
-    Tenant, TenantConfig, TenantPasswordComplexity,
-    TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig,
+    Tenant, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
+    TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig, TenantUserProfileConfig,
 )
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
@@ -310,6 +310,101 @@ class TenantContactsConfigFunctionSwitchSerializer(BaseDynamicFieldModelSerializ
             'data',
         )
 
+class DesktopConfigSerializer(serializers.Serializer):
+    access_with_desktop = serializers.BooleanField(
+        label=_("用户是否能看到桌面")
+    )
+
+    icon_custom = serializers.BooleanField(
+        label=_("用户是否可以自主调整桌面图标的位置")
+    )
+
+
+
+class TenantDesktopConfigSerializer(BaseDynamicFieldModelSerializer):
+    data = DesktopConfigSerializer(
+        label=_("设置")
+    )
+
+    class Meta:
+        model = TenantDesktopConfig
+
+        fields = (
+            'data',
+        )
+
+class PasswordConfigSerializer(serializers.Serializer):
+    regex = serializers.CharField(
+        label=_("密码复杂度正则表达式"),
+        default="(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).{8,30}"
+    )
+
+    expire_time = serializers.IntegerField(
+        label=_("密码有效时长(天)"),
+        default=30
+    )
+class TenantPasswordConfigSerializer(BaseDynamicFieldModelSerializer):
+    data = PasswordConfigSerializer(
+        label=_("密码配置")
+    )
+
+    class Meta:
+        model = TenantDesktopConfig
+
+        fields = (
+            'data',
+        )
+
+class UserProfileConfigSerializer(serializers.Serializer):
+    logout_by_self = serializers.BooleanField(
+        label=_("是否允许用户注销自己的账号")
+    )
+
+    access_with_token = serializers.BooleanField(
+        label=_("是否允许用户查看自己当前Token")
+    )
+
+    expire_token = serializers.BooleanField(
+        label=_("是否允许用户手动让Token过期")
+    )
+
+    record_with_ipaddress = serializers.BooleanField(
+        label=_("是否记录用户的IP地址")
+    )
+
+    record_with_device = serializers.BooleanField(
+        label=_("是否记录用户的设备信息")
+    )
+
+
+class TenantUserProfileConfigSerializer(BaseDynamicFieldModelSerializer):
+    data = UserProfileConfigSerializer(
+        label=_("设置")
+    )
+
+    class Meta:
+        model = TenantUserProfileConfig
+
+        fields = (
+            'data',
+        )
+
+
+class TenantAuthRefactorSerializer(serializers.Serializer):
+
+    name = serializers.CharField(
+        label=_("名称")
+    )
+
+    is_open = serializers.BooleanField(
+        label=_("是否启用")
+    )
+    can_signin = serializers.BooleanField(
+        label=_("是否支持注册")
+    )
+    can_auth = serializers.BooleanField(
+        label=_("是否支持认证")
+    )
 
 class InfoVisibilitySerializer(serializers.Serializer):
     visible_type = serializers.ChoiceField(choices=(('所有人可见', '部分人可见')), label=_('可见类型'))

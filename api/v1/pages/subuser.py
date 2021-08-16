@@ -1,8 +1,8 @@
 from openapi.utils import extend_schema_tags
 
-tag = 'book_config'
+tag = 'subuser'
 path = tag
-name = '通讯录设置'
+name = '子账号管理'
 
 extend_schema_tags(
     tag,

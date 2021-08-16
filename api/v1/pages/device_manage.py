@@ -1,8 +1,8 @@
 from openapi.utils import extend_schema_tags
 
-tag = 'app_permissions'
+tag = 'device_manage'
 path = tag
-name = '应用权限'
+name = '设备管理'
 
 extend_schema_tags(
     tag,

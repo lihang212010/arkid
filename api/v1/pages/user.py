@@ -89,3 +89,34 @@ extend_schema_tags(
         }
     }
 )
+
+user_custom_fields_tag = 'user_custom_fields'
+user_custom_fields_name = '用户自定义字段'
+
+extend_schema_tags(
+    user_custom_fields_tag,
+    user_custom_fields_name,
+    {
+        'type': 'form_page',
+        'init': {
+            'path': '/api/v1/tenant/{parent_lookup_tenant}/config/custom_field/',
+            'method': 'get'
+        },
+        'global': {
+            'create': {
+                'path': '/api/v1/tenant/{parent_lookup_tenant}/config/custom_field/',
+                'method': 'post'
+            }
+        },
+        'local': {
+            'delete': {
+                'path': '/api/v1/tenant/{parent_lookup_tenant}/config/custom_field/{id}/',
+                'method': 'delete'
+            },
+            'update': {
+                'path': '/api/v1/tenant/{parent_lookup_tenant}/config/custom_field/{id}/',
+                'method': 'put'
+            }
+        }
+    }
+)
