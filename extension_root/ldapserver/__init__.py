@@ -19,8 +19,8 @@ class LdapServerExtension(InMemExtension):
 
         runtime.register_authorization_agent(
             id='ldap_agent',
-            name='LDAP 身份代理',
-            description='LDAP 身份代理',
+            name='微软AD',
+            description='微软AD',
         )
         # extension = Extension.active_objects.filter(
         #     is_del=False,
