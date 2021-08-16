@@ -23,6 +23,7 @@ from . import (
     config,
     system,
     email,
+    data_sync,
 )
 from runtime import get_app_runtime
 
