@@ -18,7 +18,7 @@ extend_schema_tags(
         },
         'local': {
             'children': {
-                'path': '/api/v1/tenant/{parent_lookup_tenant}/group/?parent={id}',
+                'path': '/api/v1/tenant/{parent_lookup_tenant}/group/?parent={uuid}',
                 'method': 'get'
             }
         }
@@ -59,7 +59,7 @@ extend_schema_tags(
                 'method': 'delete'
             },
             'children': {
-                'path': '/api/v1/tenant/{parent_lookup_tenant}/group/?parent={id}',
+                'path': '/api/v1/tenant/{parent_lookup_tenant}/group/?parent={uuid}',
                 'method': 'get'
             }
         }

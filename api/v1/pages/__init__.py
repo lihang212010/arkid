@@ -13,10 +13,12 @@ from . import (
     profile,
     third_part_account,
     desktop,
-    login_register_config,
-    book,
+    login_config,
+    register_config,
+    find_passsword_config,
+    contacts,
     desktop_config,
-    book_config,
+    contacts_config,
     profile_config,
     tenant_config,
     sub_admin_config,
@@ -25,28 +27,33 @@ from . import (
     app_permissions,
     permission_group,
     permission_manage,
+    permission_strategy,
     scan_code,
     password_factor,
+    auth_factor,
     other_factor,
     data_synchronism,
     custom_process,
     api_document,
     sdk_download,
-    log,
+    user_log,
+    admin_log,
     log_config,
     statistics,
     all_tenants,
     all_tenants_config,
     all_users,
     all_users_config,
-    system_config
+    system_config,
+    subuser,
+    device_manage
 )
 
 from openapi.routers import root_add_routers, Router, PageRouter
 
 root_add_routers([
     PageRouter(
-        page=book,
+        page=contacts,
         icon='education'
     ),
     Router(
@@ -61,6 +68,10 @@ root_add_routers([
             PageRouter(
                 page=third_part_account,
                 icon='wechat'
+            ),
+            PageRouter(
+                page=subuser,
+                icon='user'
             )
         ]
     ),
@@ -75,24 +86,31 @@ root_add_routers([
                 icon='setting',
                 children=[
                     PageRouter(
-                        page=desktop_config,
-                        icon='desktop'
+                        page=tenant_config,
+                        icon='peoples'
                     ),
-                    PageRouter(
-                        page=book_config,
-                        icon='education'
-                    ),
-                    PageRouter(
-                        page=profile_config,
-                        icon='people'
+                    Router(
+                        path='umanage',
+                        name='用户管理配置',
+                        icon='people',
+                        children=[
+                            PageRouter(
+                                page=desktop_config,
+                                icon='desktop'
+                            ),
+                            PageRouter(
+                                page=contacts_config,
+                                icon='education'
+                            ),
+                            PageRouter(
+                                page=profile_config,
+                                icon='setting'
+                            )
+                        ]
                     ),
                     PageRouter(
                         page=sub_admin_config,
                         icon='user'
-                    ),
-                    PageRouter(
-                        page=tenant_config,
-                        icon='peoples'
                     )
                 ]
             ),
@@ -111,11 +129,7 @@ root_add_routers([
                     ),
                     PageRouter(
                         page=auth_rules,
-                        icon='lock'
-                    ),
-                    PageRouter(
-                        page=app_permissions,
-                        icon='form'
+                        icon='auth'
                     )
                 ]
             ),
@@ -131,6 +145,10 @@ root_add_routers([
                     PageRouter(
                         page=group,
                         icon='tree-table',
+                    ),
+                    PageRouter(
+                        page=device_manage,
+                        icon='developer'
                     )
                 ]
             ),
@@ -150,6 +168,14 @@ root_add_routers([
                     PageRouter(
                         page=permission_manage,
                         icon='tree-table'
+                    ),
+                    PageRouter(
+                        page=permission_strategy,
+                        icon='process'
+                    ),
+                    PageRouter(
+                        page=app_permissions,
+                        icon='component'
                     )
                 ]
             ),
@@ -173,21 +199,25 @@ root_add_routers([
                 ]
             ),
             Router(
-                path='login_register_config',
-                name='登录注册配置',
+                path='register_and_login',
+                name='注册登录配置',
                 icon='lock',
                 children=[
                     PageRouter(
-                        page=login_register_config,
+                        page=login_config,
                         icon='setting'
+                    ),
+                    PageRouter(
+                        page=register_config,
+                        icon='setting',
+                    ),
+                    PageRouter(
+                        page=find_passsword_config,
+                        icon='setting',
                     ),
                     PageRouter(
                         page=external_idp,
                         icon='wechat',
-                    ),
-                    PageRouter(
-                        page=scan_code,
-                        icon='scan'
                     )
                 ]
             ),
@@ -201,8 +231,12 @@ root_add_routers([
                         icon='lock'
                     ),
                     PageRouter(
+                        page=auth_factor,
+                        icon='auth'
+                    ),
+                    PageRouter(
                         page=other_factor,
-                        icon='example'
+                        icon='component'
                     )
                 ]
             ),
@@ -235,7 +269,11 @@ root_add_routers([
                 icon='edit',
                 children=[
                     PageRouter(
-                        page=log,
+                        page=user_log,
+                        icon='list',
+                    ),
+                    PageRouter(
+                        page=admin_log,
                         icon='list',
                     ),
                     PageRouter(

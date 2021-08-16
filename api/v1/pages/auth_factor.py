@@ -1,8 +1,8 @@
 from openapi.utils import extend_schema_tags
 
-tag = 'app_permissions'
+tag = 'auth_factor'
 path = tag
-name = '应用权限'
+name = '认证因素'
 
 extend_schema_tags(
     tag,

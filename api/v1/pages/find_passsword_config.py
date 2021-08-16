@@ -1,8 +1,8 @@
 from openapi.utils import extend_schema_tags
 
-tag = 'app_permissions'
+tag = 'find_password_config'
 path = tag
-name = '应用权限'
+name = '找回密码配置'
 
 extend_schema_tags(
     tag,

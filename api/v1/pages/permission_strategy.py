@@ -1,8 +1,8 @@
 from openapi.utils import extend_schema_tags
 
-tag = 'app_permissions'
+tag = 'permission_strategy'
 path = tag
-name = '应用权限'
+name = '权限策略'
 
 extend_schema_tags(
     tag,
