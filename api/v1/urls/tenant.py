@@ -21,6 +21,8 @@ urlpatterns = [
             views_tenant.TenantCurrentPasswordComplexityView.as_view(), name='tenant-current-password-complexity'),
     re_path(r'^tenant/(?P<tenant_uuid>[\w-]+)/contactsconfig/function_switch/',
             views_tenant.TenantContactsConfigFunctionSwitchView.as_view(), name='tenant-contactsconfig-function-switch'),
+    re_path(r'^tenant/(?P<tenant_uuid>[\w-]+)/desktopconfig/',
+            views_tenant.TenantDesktopConfigView.as_view(), name='tenant-desktop-config'),
     re_path(r'^tenant/(?P<tenant_uuid>[\w-]+)/contactsconfig/info_visibility/(?P<info_uuid>[\w-]+)/detail/',
             views_tenant.TenantContactsConfigInfoVisibilityDetailView.as_view(), name='tenant-contactsconfig-info-visibility-detail'),
     re_path(r'^tenant/(?P<tenant_uuid>[\w-]+)/contactsconfig/info_visibility/',

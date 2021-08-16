@@ -1,3 +1,4 @@
+import uuid
 from django.http.response import JsonResponse
 from django.utils.translation import gettext_lazy as _
 from rest_framework.decorators import action
@@ -5,11 +6,11 @@ from rest_framework import generics
 from openapi.utils import extend_schema
 from rest_framework.response import Response
 from tenant.models import (
-    Tenant, TenantConfig, TenantPasswordComplexity,
+    Tenant, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
     TenantContactsConfig, TenantContactsUserFieldConfig, TenantPrivacyNotice,
 )
 from api.v1.serializers.tenant import (
-    TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer,
+    TenantDesktopConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer,
     UserNameRegisterRequestSerializer, MobileLoginResponseSerializer, MobileRegisterResponseSerializer,
     UserNameRegisterResponseSerializer, UserNameLoginResponseSerializer, TenantConfigSerializer,
     UserNameLoginRequestSerializer, TenantPasswordComplexitySerializer, TenantContactsConfigFunctionSwitchSerializer,
@@ -1114,7 +1115,19 @@ class TenantContactsConfigFunctionSwitchView(generics.RetrieveUpdateAPIView):
         tenant_uuid = self.kwargs['tenant_uuid']
         return TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=0).first()
 
+@extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
+class TenantDesktopConfigView(generics.RetrieveUpdateAPIView):
 
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = TenantDesktopConfigSerializer
+ 
+    def get_object(self):
+        tenant_uuid = self.kwargs['tenant_uuid']
+        tenant = Tenant.active_objects.get(uuid=tenant_uuid)
+        return TenantDesktopConfig.active_objects.filter(tenant=tenant).first()
+        
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantContactsConfigInfoVisibilityDetailView(generics.RetrieveUpdateAPIView):
 
