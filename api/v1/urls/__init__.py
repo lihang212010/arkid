@@ -12,6 +12,7 @@ from . import (
     extension,
     external_idp,
     authorization_server,
+    authorization_agent,
     jsonp,
     login,
     storage,

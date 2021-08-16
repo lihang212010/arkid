@@ -99,6 +99,24 @@ class AuthorizationServerProvider:
         """
         return []
 
+class AuthorizationAgentProvider:
+
+    id: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+    def __init__(self, id: str, name: str, description: str = '') -> None:
+        self.id = id
+        self.name = name
+        self.description = description
+
+    @property
+    def app_settings_schema(self):
+        """
+        描述创建Agent时候需要配置的参数
+        """
+        return []
+
 
 class MFAProvider:
     @abstractmethod

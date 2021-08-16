@@ -1,6 +1,8 @@
+from authorization_agent.models import AuthorizationAgent
 from typing import Optional, List, Dict, TypeVar, Generic
 from collections import OrderedDict
 from common.provider import (
+    AuthorizationAgentProvider,
     SMSProvider,
     CacheProvider,
     ExternalIdpProvider,
@@ -32,6 +34,7 @@ class Runtime:
     external_idp_serializers: Dict[str, ExternalIdpBaseSerializer]
 
     authorization_servers: List[AuthorizationServer] = []
+    authorization_agents: List[AuthorizationAgent] = []
 
     mfa_providers: Optional[List] = None
 
@@ -150,6 +153,37 @@ class Runtime:
             if server.id == id:
                 self.authorization_servers.remove(server)
         print('logout_authorization_server:', name)
+
+    def register_authorization_agent(
+        self,
+        id: str,
+        name: str,
+        description: str,
+        provider: Optional[AuthorizationAgentProvider] = None,
+    ):
+        for agent in self.authorization_agents:
+            if agent.id == id:
+                return  # raise DuplicatedIdException(f'duplicated extension: {server.id} {server.name}')
+
+        agent = AuthorizationAgent(
+            id=id,
+            name=name,
+            description=description,
+            provider=provider,
+        )
+        self.authorization_agents.append(agent)
+
+    def logout_auhtorization_agent(
+        self,
+        id: str,
+        name: str,
+        description: str,
+        provider: Optional[AuthorizationAgentProvider] = None,
+    ):
+        for agent in self.authorization_agents:
+            if agent.id == id:
+                self.authorization_agents.remove(agent)
+        print('logout_authorization_agent:', name)
 
     def register_route(self, urlpatterns: List, namespace: str = 'global') -> any:
         assert namespace in ['global', 'tenant', 'local']

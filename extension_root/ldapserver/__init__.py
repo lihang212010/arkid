@@ -16,6 +16,12 @@ class LdapServerExtension(InMemExtension):
     """
 
     def start(self, runtime: Runtime, *args, **kwargs):
+
+        runtime.register_authorization_agent(
+            id='ldap_agent',
+            name='LDAP 身份代理',
+            description='LDAP 身份代理',
+        )
         # extension = Extension.active_objects.filter(
         #     is_del=False,
         #     type=KEY
@@ -31,7 +37,11 @@ class LdapServerExtension(InMemExtension):
         super().start(runtime=runtime, *args, **kwargs)
 
     def teardown(self, runtime: Runtime, *args, **kwargs):  # pylint: disable=unused-argument
-        pass
+        runtime.logout_authorization_agent(
+            id='ldap_agent',
+            name='LDAP 身份代理',
+            description='LDAP 身份代理',
+        )
 
 
 extension = LdapServerExtension(
