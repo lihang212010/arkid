@@ -333,6 +333,28 @@ class TenantDesktopConfigSerializer(BaseDynamicFieldModelSerializer):
             'data',
         )
 
+class PasswordConfigSerializer(serializers.Serializer):
+    regex = serializers.CharField(
+        label=_("密码复杂度正则表达式"),
+        default="(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).{8,30}"
+    )
+
+    expire_time = serializers.IntegerField(
+        label=_("密码有效时长(天)"),
+        default=30
+    )
+class TenantPasswordConfigSerializer(BaseDynamicFieldModelSerializer):
+    data = PasswordConfigSerializer(
+        label=_("密码配置")
+    )
+
+    class Meta:
+        model = TenantDesktopConfig
+
+        fields = (
+            'data',
+        )
+
 class UserProfileConfigSerializer(serializers.Serializer):
     logout_by_self = serializers.BooleanField(
         label=_("是否允许用户注销自己的账号")
@@ -366,6 +388,23 @@ class TenantUserProfileConfigSerializer(BaseDynamicFieldModelSerializer):
         fields = (
             'data',
         )
+
+
+class TenantAuthRefactorSerializer(serializers.Serializer):
+
+    name = serializers.CharField(
+        label=_("名称")
+    )
+
+    is_open = serializers.BooleanField(
+        label=_("是否启用")
+    )
+    can_signin = serializers.BooleanField(
+        label=_("是否支持注册")
+    )
+    can_auth = serializers.BooleanField(
+        label=_("是否支持认证")
+    )
 
 class InfoVisibilitySerializer(serializers.Serializer):
     visible_type = serializers.ChoiceField(choices=(('所有人可见', '部分人可见')), label=_('可见类型'))

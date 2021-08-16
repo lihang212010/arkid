@@ -7,10 +7,10 @@ from openapi.utils import extend_schema
 from rest_framework.response import Response
 from tenant.models import (
     Tenant, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
-    TenantContactsConfig, TenantContactsUserFieldConfig, TenantPrivacyNotice, TenantUserProfileConfig,
+    TenantContactsConfig, TenantContactsUserFieldConfig, TenantPasswordConfig, TenantPrivacyNotice, TenantUserProfileConfig,
 )
 from api.v1.serializers.tenant import (
-    TenantDesktopConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer, TenantUserProfileConfigSerializer,
+    TenantAuthRefactorSerializer, TenantDesktopConfigSerializer, TenantPasswordConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer, TenantUserProfileConfigSerializer,
     UserNameRegisterRequestSerializer, MobileLoginResponseSerializer, MobileRegisterResponseSerializer,
     UserNameRegisterResponseSerializer, UserNameLoginResponseSerializer, TenantConfigSerializer,
     UserNameLoginRequestSerializer, TenantPasswordComplexitySerializer, TenantContactsConfigFunctionSwitchSerializer,
@@ -1130,6 +1130,20 @@ class TenantDesktopConfigView(generics.RetrieveUpdateAPIView):
         return config
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
+class TenantPasswordConfigView(generics.RetrieveUpdateAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = TenantPasswordConfigSerializer
+ 
+    def get_object(self):
+        tenant_uuid = self.kwargs['tenant_uuid']
+        tenant = Tenant.active_objects.get(uuid=tenant_uuid)
+        config, iscreated = TenantPasswordConfig.active_objects.get_or_create(tenant=tenant)
+        return config
+
+@extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantUserProfileConfigView(generics.RetrieveUpdateAPIView):
 
     permission_classes = [IsAuthenticated]
@@ -1142,6 +1156,55 @@ class TenantUserProfileConfigView(generics.RetrieveUpdateAPIView):
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
         config, iscreated = TenantUserProfileConfig.active_objects.get_or_create(tenant=tenant)
         return config
+
+@extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
+class TenantAuthRefactorView(generics.ListAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = TenantAuthRefactorSerializer
+    pagination_class = DefaultListPaginator
+ 
+    def get_queryset(self):
+        return [
+            {
+                "name": "用户名/密码",
+                "is_open": True,
+                "can_signin": True,
+                "can_auth": True,
+            },
+            {
+                "name": "短信验证码",
+                "is_open": False,
+                "can_signin": True,
+                "can_auth": True,
+            },
+            {
+                "name": "邮箱验证码",
+                "is_open": True,
+                "can_signin": True,
+                "can_auth": True,
+            },
+            {
+                "name": "图形验证码",
+                "is_open": True,
+                "can_signin": False,
+                "can_auth": False,
+            },
+            {
+                "name": "指纹",
+                "is_open": True,
+                "can_signin": False,
+                "can_auth": True,
+            },
+            {
+                "name": "脸部识别",
+                "is_open": True,
+                "can_signin": False,
+                "can_auth": True,
+            },
+        ]
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantContactsConfigInfoVisibilityDetailView(generics.RetrieveUpdateAPIView):
