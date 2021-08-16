@@ -1126,7 +1126,8 @@ class TenantDesktopConfigView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
-        return TenantDesktopConfig.active_objects.filter(tenant=tenant).first()
+        config, iscreated = TenantDesktopConfig.active_objects.get_or_create(tenant=tenant)
+        return config
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantUserProfileConfigView(generics.RetrieveUpdateAPIView):
@@ -1139,7 +1140,8 @@ class TenantUserProfileConfigView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
-        return TenantUserProfileConfig.active_objects.filter(tenant=tenant).first()
+        config, iscreated = TenantUserProfileConfig.active_objects.get_or_create(tenant=tenant)
+        return config
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantContactsConfigInfoVisibilityDetailView(generics.RetrieveUpdateAPIView):
