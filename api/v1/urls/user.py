@@ -52,6 +52,11 @@ urlpatterns = [
         views_user.UserManageTenantsView.as_view(),
         name='user-manage-tenants',
     ),
+    path(
+        'user/child_account/',
+        views_user.ChildAccountView.as_view(),
+        name='user-child-account',
+    ),
     url(
         r'^user/invitation/(?P<username>[\w]+)/',
         views_user.InviteUserCreateAPIView.as_view(),

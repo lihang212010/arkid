@@ -360,3 +360,20 @@ class UserManageTenantsSerializer(serializers.Serializer):
     )
     is_global_admin = serializers.BooleanField(label=_('是否是系统管理员'))
     is_platform_user = serializers.BooleanField(label=_('是否是平台用户'))
+
+
+class ChildAccountSerializer(serializers.Serializer):
+
+    username = serializers.CharField(read_only=True, label=_('账户名'))
+    type = serializers.CharField(read_only=True, label=_('类型'))
+    email = serializers.CharField(read_only=True, label=_('邮箱'))
+    mobile = serializers.CharField(read_only=True, label=_('手机'))
+
+    class Meta:
+
+        fields = (
+            'username',
+            'type',
+            'email',
+            'mobile',
+        )
