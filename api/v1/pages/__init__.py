@@ -13,9 +13,7 @@ from . import (
     profile,
     third_part_account,
     desktop,
-    login_config,
-    register_config,
-    find_passsword_config,
+    login_register_config,
     contacts,
     desktop_config,
     contacts_config,
@@ -200,16 +198,8 @@ root_add_routers([
                 icon='lock',
                 children=[
                     PageRouter(
-                        page=login_config,
+                        page=login_register_config,
                         icon='setting'
-                    ),
-                    PageRouter(
-                        page=register_config,
-                        icon='setting',
-                    ),
-                    PageRouter(
-                        page=find_passsword_config,
-                        icon='setting',
                     ),
                     PageRouter(
                         page=external_idp,

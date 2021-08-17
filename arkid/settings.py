@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'extension_root.miniprogram',
     'djangosaml2idp',
     'data_sync',
+    'login_register_config',
 ]
 
 X_FRAME_OPTIONS = 'ALLOWALL'
