@@ -6,5 +6,12 @@ name = 'SDK下载'
 
 extend_schema_tags(
     tag,
-    name
+    name,
+    {
+        'type': 'table_page',
+        'init': {
+            'path': '/api/v1/sdk/',
+            'method': 'get'
+        },
+    }
 )

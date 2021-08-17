@@ -4,7 +4,7 @@ from runtime import get_app_runtime
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import ChoiceField
 from tenant.models import (
-    Tenant, TenantAgentRule, TenantAuthFactor, TenantConfig, TenantPasswordComplexity, TenantDesktopConfig,
+    Tenant, TenantAgentRule, TenantAuthFactor, TenantAuthRule, TenantConfig, TenantPasswordComplexity, TenantDesktopConfig,
     TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig,
     TenantDevice, TenantUserProfileConfig
 )
@@ -78,15 +78,15 @@ class TenantSerializer(BaseDynamicFieldModelSerializer):
         )
         # 字段可见性
         TenantContactsUserFieldConfig.objects.get_or_create(
-                is_del=False,
-                tenant=tenant,
-                name="用户名",
-                data={
-                    "visible_type": "所有人可见",
-                    "visible_scope": [],
-                    "assign_group": [],
-                    "assign_user": []
-                }
+            is_del=False,
+            tenant=tenant,
+            name="用户名",
+            data={
+                "visible_type": "所有人可见",
+                "visible_scope": [],
+                "assign_group": [],
+                "assign_user": []
+            }
         )
         TenantContactsUserFieldConfig.objects.get_or_create(
             is_del=False,
@@ -186,7 +186,8 @@ class UserNameLoginRequestSerializer(serializers.Serializer):
     username = serializers.CharField(label=_('用户名'))
     password = serializers.CharField(label=_('密码'))
     code = serializers.CharField(label=_('图片验证码'), required=False)
-    code_filename = serializers.CharField(label=_('图片验证码的文件名称'), required=False)
+    code_filename = serializers.CharField(
+        label=_('图片验证码的文件名称'), required=False)
 
 
 class UserNameRegisterResponseSerializer(serializers.Serializer):
@@ -204,7 +205,8 @@ class UserNameLoginResponseSerializer(serializers.Serializer):
 
 class ConfigSerializer(serializers.Serializer):
     is_open_authcode = serializers.BooleanField(label=_('是否打开验证码'))
-    error_number_open_authcode = serializers.IntegerField(label=_('错误几次提示输入验证码'))
+    error_number_open_authcode = serializers.IntegerField(
+        label=_('错误几次提示输入验证码'))
     is_open_register_limit = serializers.BooleanField(label=_('是否限制注册用户'))
     register_time_limit = serializers.IntegerField(label=_('用户注册时间限制(分钟)'))
     register_count_limit = serializers.IntegerField(label=_('用户注册数量限制'))
@@ -227,7 +229,8 @@ class ConfigSerializer(serializers.Serializer):
     need_complete_profile_after_register = serializers.BooleanField(
         label=_('注册完成后跳转到完善用户资料页面')
     )
-    can_skip_complete_profile = serializers.BooleanField(label=_('完善用户资料页面允许跳过'))
+    can_skip_complete_profile = serializers.BooleanField(
+        label=_('完善用户资料页面允许跳过'))
 
 
 class TenantConfigSerializer(BaseDynamicFieldModelSerializer):
@@ -267,7 +270,8 @@ class TenantPasswordComplexitySerializer(BaseDynamicFieldModelSerializer):
 
     def create(self, validated_data):
         tenant_uuid = (
-            self.context['request'].parser_context.get('kwargs').get('tenant_uuid')
+            self.context['request'].parser_context.get(
+                'kwargs').get('tenant_uuid')
         )
         regular = validated_data.get('regular')
         is_apply = validated_data.get('is_apply')
@@ -287,7 +291,8 @@ class TenantPasswordComplexitySerializer(BaseDynamicFieldModelSerializer):
 
     def update(self, instance, validated_data):
         tenant_uuid = (
-            self.context['request'].parser_context.get('kwargs').get('tenant_uuid')
+            self.context['request'].parser_context.get(
+                'kwargs').get('tenant_uuid')
         )
         tenant = Tenant.objects.filter(uuid=tenant_uuid).first()
         is_apply = validated_data.get('is_apply')
@@ -314,6 +319,7 @@ class TenantContactsConfigFunctionSwitchSerializer(BaseDynamicFieldModelSerializ
             'data',
         )
 
+
 class DesktopConfigSerializer(serializers.Serializer):
     access_with_desktop = serializers.BooleanField(
         label=_("用户是否能看到桌面")
@@ -322,7 +328,6 @@ class DesktopConfigSerializer(serializers.Serializer):
     icon_custom = serializers.BooleanField(
         label=_("用户是否可以自主调整桌面图标的位置")
     )
-
 
 
 class TenantDesktopConfigSerializer(BaseDynamicFieldModelSerializer):
@@ -337,6 +342,7 @@ class TenantDesktopConfigSerializer(BaseDynamicFieldModelSerializer):
             'data',
         )
 
+
 class PasswordConfigSerializer(serializers.Serializer):
     regex = serializers.CharField(
         label=_("密码复杂度正则表达式"),
@@ -347,6 +353,8 @@ class PasswordConfigSerializer(serializers.Serializer):
         label=_("密码有效时长(天)"),
         default=30
     )
+
+
 class TenantPasswordConfigSerializer(BaseDynamicFieldModelSerializer):
     data = PasswordConfigSerializer(
         label=_("密码配置")
@@ -358,6 +366,7 @@ class TenantPasswordConfigSerializer(BaseDynamicFieldModelSerializer):
         fields = (
             'data',
         )
+
 
 class UserProfileConfigSerializer(serializers.Serializer):
     logout_by_self = serializers.BooleanField(
@@ -419,40 +428,43 @@ class TenantAuthRefactorSerializer(serializers.Serializer):
         label=_("是否支持认证")
     )
 
+
 class TenantAngentRuleDataSerializer(serializers.Serializer):
 
     agents = serializers.ListField(
         label=_("身份源代理"),
-        child = serializers.ChoiceField(
+        child=serializers.ChoiceField(
             choices=(
-                ("微软AD","LDAP")
+                ("微软AD", "LDAP")
             )
         )
     )
 
     apps = serializers.ListField(
         label=_("应用"),
-        child = serializers.ChoiceField(
+        child=serializers.ChoiceField(
             choices=(
-                ("小红书","阿里云")
+                ("小红书", "阿里云")
             )
         )
     )
+
 
 class TenantAgentRuleSerializer(BaseDynamicFieldModelSerializer):
 
     data = TenantAngentRuleDataSerializer(
         label=_("规则")
     )
-    
+
     class Meta:
         model = TenantAgentRule
-        fields=[
+        fields = [
             "id",
             "is_apply",
             "title",
             "data"
         ]
+
 
 class TenantAgentRuleDetailSerializer(BaseDynamicFieldModelSerializer):
 
@@ -460,43 +472,154 @@ class TenantAgentRuleDetailSerializer(BaseDynamicFieldModelSerializer):
 
     apps = serializers.SerializerMethodField(label=_("应用"))
 
-    def get_agents(self,obj):
+    def get_agents(self, obj):
         return obj.data.get("agents")
 
-    def get_apps(self,obj):
+    def get_apps(self, obj):
         return obj.data.get("apps")
-    
+
     class Meta:
         model = TenantAgentRule
-        fields=[
+        fields = [
             "title",
             "agents",
             "apps",
             "is_apply",
         ]
 
+
+class TenantAuthRuleDataConditionSerializer(serializers.Serializer):
+
+    event = serializers.ChoiceField(
+        label=_("事件"),
+        choices=(
+            ("认证失败", "认证成功", "使用新设备", "使用新IP", "使用新地点")
+        )
+    )
+
+    charge = serializers.ChoiceField(
+        label=_("判断"),
+        choices=(
+            ("大于","等于","小于")
+        )
+    )
+
+    times = serializers.IntegerField(
+        label=_("次数")
+    )
+
+
+class TenantAuthRuleDataSerializer(serializers.Serializer):
+
+    major_auth = serializers.ListField(
+        label=_("主要认证因素"),
+        child=serializers.ChoiceField(
+            choices=(
+                ("用户名密码", "短信验证码", "图形验证码", "邮箱验证码", "动态口令", "指纹", "人脸识别")
+            )
+        )
+    )
+
+    condition = TenantAuthRuleDataConditionSerializer(
+        label=_("条件")
+    )
+
+    second_auth = serializers.ListField(
+        label=_("主要认证因素"),
+        child=serializers.ChoiceField(
+            choices=(
+                ("用户名密码", "短信验证码", "图形验证码", "邮箱验证码", "动态口令", "指纹", "人脸识别")
+            )
+        )
+    )
+
+    apps = serializers.ListField(
+        label=_("应用"),
+        child=serializers.ChoiceField(
+            choices=(
+                ("小红书", "阿里云", "所有应用")
+            )
+        )
+    )
+
+
+class TenantAuthRuleSerializer(BaseDynamicFieldModelSerializer):
+
+    data = TenantAuthRuleDataSerializer(
+        label=_("规则")
+    )
+
+    class Meta:
+        model = TenantAuthRule
+        fields = [
+            "id",
+            "is_apply",
+            "title",
+            "data"
+        ]
+
+
+class TenantAuthRuleDetailSerializer(BaseDynamicFieldModelSerializer):
+
+    apps = serializers.SerializerMethodField(label=_("应用"))
+
+    major_auth = serializers.SerializerMethodField(label=_("主认证因素"))
+
+    condition = serializers.SerializerMethodField(label=_("条件"))
+    
+    second_auth = serializers.SerializerMethodField(label=_("次认证因素"))
+
+    def get_major_auth(self, obj):
+        return obj.data.get("major_auth")
+
+    def get_condition(self, obj):
+        return obj.data.get("condition")
+
+    def get_second_auth(self, obj):
+        return obj.data.get("second_auth")
+
+    def get_apps(self, obj):
+        return obj.data.get("apps")
+
+    class Meta:
+        model = TenantAgentRule
+        fields = [
+            "title",
+            "apps",
+            "major_auth",
+            "condition",
+            "second_auth",
+            "is_apply",
+        ]
+
+
 def get_authfactor_tyoe_choices():
     from runtime import get_app_runtime
-    rs = ((item.name,item.id) for item in get_app_runtime().auth_factors)
+    rs = ((item.name, item.id) for item in get_app_runtime().auth_factors)
     print(rs)
     return tuple(rs)
 
+
 class TenantAuthRefactorCreateSerializer(BaseDynamicFieldModelSerializer):
 
-    type =ChoiceField(
+    type = ChoiceField(
         label=_("类型"),
         choices=get_authfactor_tyoe_choices()
     )
+
     class Meta:
         model = TenantAuthFactor
-        fields=["type","id","is_open"]
+        fields = ["type", "id", "is_open"]
         extra_kwargs = {
             'uuid': {'read_only': True},
         }
 
+
 class InfoVisibilitySerializer(serializers.Serializer):
-    visible_type = serializers.ChoiceField(choices=(('所有人可见', '部分人可见')), label=_('可见类型'))
-    visible_scope = serializers.MultipleChoiceField(choices=(('本人可见', '管理员可见', '指定分组与人员')), label=_('可见范围'), required=False, default=[])
+    visible_type = serializers.ChoiceField(
+        choices=(('所有人可见', '部分人可见')), label=_('可见类型'))
+    visible_scope = serializers.MultipleChoiceField(choices=(
+        ('本人可见', '管理员可见', '指定分组与人员')), label=_('可见范围'), required=False, default=[])
     assign_group = create_foreign_key_field(serializers.ListField)(
         model_cls=Group,
         field_name='uuid',
@@ -545,8 +668,10 @@ class TenantContactsConfigInfoVisibilitySerializer(BaseDynamicFieldModelSerializ
 
 
 class GroupVisibilitySerializer(serializers.Serializer):
-    visible_type = serializers.ChoiceField(choices=(('所有人可见', '部分人可见')), label=_('可见类型'))
-    visible_scope = serializers.MultipleChoiceField(choices=(('组内成员可见', '下属分组可见', '指定分组与人员')), label=_('可见范围'))
+    visible_type = serializers.ChoiceField(
+        choices=(('所有人可见', '部分人可见')), label=_('可见类型'))
+    visible_scope = serializers.MultipleChoiceField(
+        choices=(('组内成员可见', '下属分组可见', '指定分组与人员')), label=_('可见范围'))
     assign_group = create_foreign_key_field(serializers.ListField)(
         model_cls=Group,
         field_name='uuid',
@@ -606,14 +731,19 @@ class ContactsUserSerializer(serializers.ModelSerializer):
 
 class TenantContactsUserTagsSerializer(serializers.Serializer):
 
-    myself_field = serializers.ListField(child=serializers.CharField(), label=_('本人可见字段'), default=[])
-    manager_field = serializers.ListField(child=serializers.CharField(), label=_('管理员可见字段'), default=[])
-    part_field = serializers.ListField(child=serializers.CharField(), label=_('部分人可见'), default=[])
-    all_user_field = serializers.ListField(child=serializers.CharField(), label=_('所有人可见字段'), default=[])
+    myself_field = serializers.ListField(
+        child=serializers.CharField(), label=_('本人可见字段'), default=[])
+    manager_field = serializers.ListField(
+        child=serializers.CharField(), label=_('管理员可见字段'), default=[])
+    part_field = serializers.ListField(
+        child=serializers.CharField(), label=_('部分人可见'), default=[])
+    all_user_field = serializers.ListField(
+        child=serializers.CharField(), label=_('所有人可见字段'), default=[])
 
 
 class TenantPrivacyNoticeSerializer(BaseDynamicFieldModelSerializer):
-    content = create_html_field(serializers.CharField)(hint=_("隐私声明内容"), required=True)
+    content = create_html_field(serializers.CharField)(
+        hint=_("隐私声明内容"), required=True)
 
     class Meta:
         model = TenantPrivacyNotice
@@ -629,7 +759,8 @@ class TenantPrivacyNoticeSerializer(BaseDynamicFieldModelSerializer):
 
 class TenantDeviceSerializer(BaseDynamicFieldModelSerializer):
 
-    account_ids = serializers.ListField(child=serializers.CharField(), label=_('用户账号ID'), default=[])
+    account_ids = serializers.ListField(
+        child=serializers.CharField(), label=_('用户账号ID'), default=[])
 
     class Meta:
         model = TenantDevice

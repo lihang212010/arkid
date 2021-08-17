@@ -86,6 +86,19 @@ class TenantAgentRule(BaseModel):
     def tenant_uuid(self):
         return self.tenant.uuid
 
+class TenantAuthRule(BaseModel):
+
+    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, verbose_name='租户')
+    is_apply = models.BooleanField(default=False, verbose_name='是否启用')
+    title = models.CharField(
+        verbose_name='标题', max_length=128, default='', null=True, blank=True
+    )
+    data = models.JSONField(blank=True, default=dict)
+
+    @property
+    def tenant_uuid(self):
+        return self.tenant.uuid
+
 class TenantContactsConfig(BaseModel):
 
     # 功能开关
