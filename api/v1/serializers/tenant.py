@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from tenant.models import (
     Tenant, TenantConfig, TenantPasswordComplexity, TenantDesktopConfig,
     TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig,
-    TenantDevice, TenantUserProfileConfig, TenantLogConfig
+    TenantUserProfileConfig, TenantLogConfig
 )
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
@@ -538,34 +538,6 @@ class TenantPrivacyNoticeSerializer(BaseDynamicFieldModelSerializer):
         instance.content = validated_data.get('content')
         instance.save()
         return instance
-
-
-class TenantDeviceSerializer(BaseDynamicFieldModelSerializer):
-
-    account_ids = serializers.ListField(child=serializers.CharField(), label=_('用户账号ID'), default=[])
-
-    class Meta:
-        model = TenantDevice
-
-        fields = (
-            'uuid',
-            'device_type',
-            'system_version',
-            'browser_version',
-            'ip',
-            'mac_address',
-            'device_number',
-            'device_id',
-            'account_ids'
-        )
-
-    def create(self, validated_data):
-        tenant = self.context['tenant']
-        validated_data['tenant'] = tenant
-        device = TenantDevice.objects.create(
-            **validated_data
-        )
-        return device
 
 
 class LogConfigSerializer(serializers.Serializer):
