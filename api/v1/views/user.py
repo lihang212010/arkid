@@ -30,6 +30,7 @@ from api.v1.serializers.user import (
     ResetPasswordRequestSerializer,
     MobileResetPasswordRequestSerializer,
     EmailResetPasswordRequestSerializer,
+    ChildAccountSerializer,
 )
 from api.v1.serializers.app import AppBaseInfoSerializer
 from api.v1.serializers.sms import ResetPWDSMSClaimSerializer
@@ -48,6 +49,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from drf_spectacular.openapi import OpenApiTypes
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from .base import BaseTenantViewSet
 
 import re
 from webhook.manager import WebhookManager
@@ -742,3 +744,50 @@ class InviteUserCreateAPIView(generics.CreateAPIView):
                 'expired_time': invitation.expired_time,
             }
         )
+
+
+@extend_schema(
+    roles=['tenant admin', 'global admin'],
+    tags = ['user']
+)
+class ChildAccountView(generics.ListAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = ChildAccountSerializer
+    pagination_class = DefaultListPaginator
+
+    def list(self, request):
+        result = {
+            "count":4,
+            "next":None,
+            "previous":None,
+            "results":[
+                {
+                    "username":"longguiadmin001",
+                    "type":"主账号",
+                    "email":"longguiadmin001@163.com",
+                    "mobile":"13800138001"
+                },
+                {
+                    "username":"longgui002",
+                    "type":"子账号",
+                    "email":"longgui002@163.com",
+                    "mobile":"13800138002"
+                },
+                {
+                    "username":"longgui003",
+                    "type":"子账号",
+                    "email":"longgui003@163.com",
+                    "mobile":"13800138003"
+                },
+                {
+                    "username":"longgui004",
+                    "type":"子账号",
+                    "email":"longgui004@163.com",
+                    "mobile":"13800138004"
+                }
+            ]
+        }
+        return Response(result)

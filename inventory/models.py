@@ -65,31 +65,33 @@ class User(AbstractSCIMUserMixin, AbstractUser, BaseModel):
         related_query_name="tenant",
     )
 
-    username = models.CharField(max_length=128, blank=False, unique=True)
-    password = models.CharField(max_length=128, blank=False, null=True)
-    email = models.EmailField(blank=True)
-    mobile = models.CharField(max_length=128, blank=True)
-    first_name = models.CharField(max_length=150, blank=True)
-    last_name = models.CharField(max_length=128, blank=True)
-    nickname = models.CharField(max_length=128, blank=True)
-    country = models.CharField(max_length=128, blank=True)
-    city = models.CharField(max_length=128, blank=True)
-    job_title = models.CharField(max_length=128, blank=True)
-    last_login = models.DateTimeField(blank=True, null=True)
+    username = models.CharField(max_length=128, blank=False, unique=True, verbose_name='用户名')
+    password = models.CharField(max_length=128, blank=False, null=True, verbose_name='密码')
+    email = models.EmailField(blank=True, verbose_name='邮箱')
+    mobile = models.CharField(max_length=128, blank=True, verbose_name='手机')
+    first_name = models.CharField(max_length=150, blank=True, verbose_name='名')
+    last_name = models.CharField(max_length=128, blank=True, verbose_name='姓')
+    nickname = models.CharField(max_length=128, blank=True, verbose_name='昵称')
+    country = models.CharField(max_length=128, blank=True, verbose_name='国家')
+    city = models.CharField(max_length=128, blank=True, verbose_name='城市')
+    job_title = models.CharField(max_length=128, blank=True, verbose_name='工作')
+    last_login = models.DateTimeField(blank=True, null=True, verbose_name='登录时间')
 
-    avatar = models.CharField(blank=True, max_length=256)
+    avatar = models.CharField(blank=True, max_length=256, verbose_name='头像')
 
     groups = models.ManyToManyField(
         'inventory.Group',
         blank=True,
-        related_name="user_set",
-        related_query_name="user",
+        related_name='user_set',
+        related_query_name='user',
+        verbose_name='所属分组'
     )
     user_permissions = models.ManyToManyField(
         'inventory.Permission',
         blank=True,
-        related_name="user_permission_set",
-        related_query_name="user_permission",
+        related_name='user_permission_set',
+        related_query_name='user_permission',
+        verbose_name='用户权限'
     )
     is_platform_user = models.BooleanField(default=False, verbose_name='是否是平台用户')
 
@@ -160,7 +162,8 @@ class User(AbstractSCIMUserMixin, AbstractUser, BaseModel):
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
         self._password = raw_password
-        UserPassword.valid_objects.get_or_create(user=self, password=self.md5_password(raw_password))
+        if self.id:
+            UserPassword.valid_objects.get_or_create(user=self, password=self.md5_password(raw_password))
 
     def valid_password(self, raw_password):
         return UserPassword.valid_objects.filter(

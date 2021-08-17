@@ -16,7 +16,6 @@ from webhook.manager import WebhookManager
 from django.db import transaction
 
 
-
 class CustomUserSerializer(BaseDynamicFieldModelSerializer):
     '''
     custom user info
@@ -310,6 +309,11 @@ class UserInfoSerializer(BaseDynamicFieldModelSerializer):
         required=False,
         allow_blank=True,
     )
+    email = create_hint_field(serializers.EmailField)(
+        hint="请填写正确的email格式",
+        required=False,
+    )
+
 
     class Meta:
         model = User
@@ -317,19 +321,20 @@ class UserInfoSerializer(BaseDynamicFieldModelSerializer):
         fields = (
             'uuid',
             'username',
-            'nickname',
+            'email',
             'mobile',
+            'first_name',
+            'last_name',
+            'nickname',
+            'country',
+            'city',
+            'job_title',
+            'bind_info',
         )
 
-    def update(self, instance, validated_data):
-        nickname = validated_data.pop('nickname', None)
-        if nickname:
-            instance.nickname = nickname
-        mobile = validated_data.pop('mobile', None)
-        if mobile:
-            instance.mobile = mobile
-        instance.save()
-        return instance
+        extra_kwargs = {
+            'bind_info': {'read_only': True},
+        }
 
 
 class UserBindInfoBaseSerializer(serializers.Serializer):
@@ -354,3 +359,20 @@ class UserManageTenantsSerializer(serializers.Serializer):
     )
     is_global_admin = serializers.BooleanField(label=_('是否是系统管理员'))
     is_platform_user = serializers.BooleanField(label=_('是否是平台用户'))
+
+
+class ChildAccountSerializer(serializers.Serializer):
+
+    username = serializers.CharField(read_only=True, label=_('账户名'))
+    type = serializers.CharField(read_only=True, label=_('类型'))
+    email = serializers.CharField(read_only=True, label=_('邮箱'))
+    mobile = serializers.CharField(read_only=True, label=_('手机'))
+
+    class Meta:
+
+        fields = (
+            'username',
+            'type',
+            'email',
+            'mobile',
+        )

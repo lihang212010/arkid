@@ -25,6 +25,9 @@ from . import (
     email,
     data_sync,
     sdk,
+    login_register_config,
+    device,
+    log,
 )
 from runtime import get_app_runtime
 
@@ -76,3 +79,4 @@ urlpatterns += system.urlpatterns
 urlpatterns += email.urlpatterns
 urlpatterns += app.urlpatterns
 urlpatterns += sdk.urlpatterns
+urlpatterns += device.urlpatterns
