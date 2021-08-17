@@ -1,5 +1,6 @@
 import json
 from lib.dynamic_fields_model_serializer import DynamicFieldsModelSerializer
+from django.utils.translation import ugettext_lazy as _
 from webhook.models import Webhook, WebhookEvent
 from webhook.event_types import WebhookEventType
 from rest_framework import serializers
@@ -26,8 +27,13 @@ class WebhookEventSerializer(DynamicFieldsModelSerializer):
 
 
 class WebhookSerializer(DynamicFieldsModelSerializer):
-    events = serializers.MultipleChoiceField(choices=WebhookEventType.CHOICES)
-    url = serializers.URLField()
+    events = serializers.MultipleChoiceField(
+        choices=WebhookEventType.CHOICES,
+        label=_("事件")
+    )
+    url = serializers.URLField(
+        label=_("链接")
+    )
 
     class Meta:
         model = Webhook

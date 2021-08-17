@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class BaseDynamicFieldModelSerializer(DynamicFieldsModelSerializer):
 
-    uuid = serializers.UUIDField(label='UUID', read_only=True, format='hex')
+    uuid = serializers.UUIDField(label='唯一标识', read_only=True, format='hex')
 
 
 class AppBaseSerializer(serializers.Serializer):
@@ -34,6 +34,6 @@ class ExtensionBaseSerializer(serializers.Serializer):
 
 
 class LoginRegisterConfigBaseSerializer(serializers.Serializer):
-    type = serializers.CharField()
+    type = serializers.CharField(label=_('登录注册类型'))
     data = serializers.JSONField()
     uuid = serializers.UUIDField(read_only=True)

@@ -11,5 +11,5 @@ class LoginRegisterConfig(BaseModel):
     tenant = models.ForeignKey(
         'tenant.Tenant', blank=False, null=True, on_delete=models.PROTECT
     )
-    type = models.CharField(max_length=32, verbose_name=_('Login Register Config Type'))
+    type = models.CharField(max_length=32, verbose_name=_('登录注册配置类型'))
     data = models.JSONField(default=dict)

@@ -8,9 +8,9 @@ class ExternalIdp(BaseModel):
     tenant = models.ForeignKey(
         'tenant.Tenant', blank=False, null=True, on_delete=models.PROTECT
     )
-    type = models.CharField(max_length=128, verbose_name=_('External IDP Type'))
+    type = models.CharField(max_length=128, verbose_name=_('第三方身份源类型'))
     data = models.JSONField(default=dict)
-    order_no = models.PositiveSmallIntegerField(default=0)
+    order_no = models.PositiveSmallIntegerField(default=0,verbose_name=_("序号"))
 
     @property
     def external_idp_types(self):
