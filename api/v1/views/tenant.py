@@ -41,6 +41,7 @@ from api.v1.serializers.tenant import (
     TenantContactsUserTagsSerializer,
     TenantPrivacyNoticeSerializer,
     TenantLogConfigSerializer,
+    ChildManagerSerializer,
 )
 from api.v1.serializers.app import AppBaseInfoSerializer
 from api.v1.serializers.sms import RegisterSMSClaimSerializer, LoginSMSClaimSerializer
@@ -1627,3 +1628,39 @@ class TenantLogConfigView(generics.RetrieveUpdateAPIView):
 
         log_config.save()
         return log_config
+
+
+@extend_schema(
+    roles=['tenant admin', 'global admin'],
+    tags = ['user']
+)
+class ChildManagerView(generics.ListAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = ChildManagerSerializer
+    pagination_class = DefaultListPaginator
+
+    def list(self, request, tenant_uuid):
+        result = {
+            "count":3,
+            "next":None,
+            "previous":None,
+            "results":[
+                {
+                    "username":"longguiadmin001",
+                    "scope":["所在分组","所在分组的下级分组"],
+                    "permission":"全部权限"
+                },{
+                    "username":"longguiadmin002",
+                    "scope":["所在分组"],
+                    "permission":"所有应用权限"
+                },{
+                    "username":"longguiadmin003",
+                    "scope":["指定分组与账号"],
+                    "permission":"全部权限"
+                }
+            ]
+        }
+        return Response(result)

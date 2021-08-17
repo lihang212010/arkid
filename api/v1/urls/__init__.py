@@ -26,6 +26,7 @@ from . import (
     data_sync,
     login_register_config,
     device,
+    log,
 )
 from runtime import get_app_runtime
 
