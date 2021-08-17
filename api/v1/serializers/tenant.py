@@ -235,7 +235,9 @@ class ConfigSerializer(serializers.Serializer):
 
 class TenantConfigSerializer(BaseDynamicFieldModelSerializer):
 
-    data = ConfigSerializer()
+    data = ConfigSerializer(
+        label=_("配置数据")
+    )
 
     class Meta:
         model = TenantConfig
@@ -743,7 +745,7 @@ class TenantContactsUserTagsSerializer(serializers.Serializer):
 
 class TenantPrivacyNoticeSerializer(BaseDynamicFieldModelSerializer):
     content = create_html_field(serializers.CharField)(
-        hint=_("隐私声明内容"), required=True)
+        hint=_("隐私声明内容"),label=_("内容"),required=True)
 
     class Meta:
         model = TenantPrivacyNotice
