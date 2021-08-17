@@ -45,6 +45,8 @@ urlpatterns = [
             views_tenant.TenantPrivacyNoticeView.as_view(), name='tenant-privacy_notice'),
     re_path(r'^tenant/(?P<tenant_uuid>[\w-]+)/log_config/',
             views_tenant.TenantLogConfigView.as_view(), name='tenant-log-config'),
+    re_path(r'^tenant/(?P<tenant_uuid>[\w-]+)/child_manager/',
+            views_tenant.ChildManagerView.as_view(), name='tenant-child-manager'),
     re_path(r'^tenant/(?P<slug>[\w-]+)/slug/$',
         views_tenant.TenantSlugView.as_view(), name='tenant-slug'),
 ]

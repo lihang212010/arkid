@@ -562,3 +562,18 @@ class TenantLogConfigSerializer(BaseDynamicFieldModelSerializer):
         }
         instance.save()
         return instance
+
+
+class ChildManagerSerializer(serializers.Serializer):
+
+    username = serializers.CharField(read_only=True, label=_('用户名'))
+    scope = serializers.ListField(child=serializers.CharField(), read_only=True, label=_('范围'))
+    permission = serializers.CharField(read_only=True, label=_('权限'))
+
+    class Meta:
+
+        fields = (
+            'username',
+            'scope',
+            'permission',
+        )
