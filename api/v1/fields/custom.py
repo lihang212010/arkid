@@ -44,6 +44,25 @@ def create_foreign_key_field(field_cls):
 
     return ForeignKeyField
 
+
+def create_title_field(field_cls):
+    
+    class TitleField(field_cls):
+        _field_meta = {}
+
+        def __init__(self, **kwargs):
+            field = get_override(self, 'field', {})
+
+            for k, v in kwargs.items():
+                if isinstance(v, (str, int, list, bool, dict, float)):
+                    field[k] = v
+
+            set_override(self, 'field', field)
+            super().__init__(**kwargs)
+        
+    return TitleField
+
+
 def create_hint_field(field_cls):
     class HintField(field_cls):
         _field_meta = {}
