@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from tenant.models import (
     Tenant, TenantConfig, TenantPasswordComplexity, TenantDesktopConfig,
     TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig,
-    TenantDevice, TenantUserProfileConfig
+    TenantDevice, TenantUserProfileConfig, TenantLogConfig
 )
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
