@@ -24,6 +24,7 @@ from . import (
     system,
     email,
     data_sync,
+    login_register_config,
     device,
 )
 from runtime import get_app_runtime

@@ -30,6 +30,11 @@ class PageRouter(Router):
         super().__init__(path=page.path, name=page.name, page=page.tag, *args, **kwargs)
 
 
+class UrlRouter(Router):
+    def __init__(self, path, name, url, *args, **kwargs):
+        super().__init__(path=path, name=name, url=url, *args, **kwargs)
+
+
 def fresh():
     SPECTACULAR_SETTINGS['EXTENSIONS_INFO']['routers'] = root_list
 

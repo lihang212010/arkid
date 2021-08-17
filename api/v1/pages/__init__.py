@@ -13,9 +13,7 @@ from . import (
     profile,
     third_part_account,
     desktop,
-    login_config,
-    register_config,
-    find_passsword_config,
+    login_register_config,
     contacts,
     desktop_config,
     contacts_config,
@@ -49,7 +47,7 @@ from . import (
     device_manage
 )
 
-from openapi.routers import root_add_routers, Router, PageRouter
+from openapi.routers import root_add_routers, Router, PageRouter, UrlRouter
 
 root_add_routers([
     PageRouter(
@@ -172,10 +170,6 @@ root_add_routers([
                     PageRouter(
                         page=permission_strategy,
                         icon='process'
-                    ),
-                    PageRouter(
-                        page=app_permissions,
-                        icon='component'
                     )
                 ]
             ),
@@ -204,16 +198,8 @@ root_add_routers([
                 icon='lock',
                 children=[
                     PageRouter(
-                        page=login_config,
+                        page=login_register_config,
                         icon='setting'
-                    ),
-                    PageRouter(
-                        page=register_config,
-                        icon='setting',
-                    ),
-                    PageRouter(
-                        page=find_passsword_config,
-                        icon='setting',
                     ),
                     PageRouter(
                         page=external_idp,
@@ -233,10 +219,6 @@ root_add_routers([
                     PageRouter(
                         page=auth_factor,
                         icon='auth'
-                    ),
-                    PageRouter(
-                        page=other_factor,
-                        icon='component'
                     )
                 ]
             ),
@@ -249,12 +231,10 @@ root_add_routers([
                         page=webhook,
                         icon='webhook',
                     ),
-                    PageRouter(
-                        page=custom_process,
-                        icon='process'
-                    ),
-                    PageRouter(
-                        page=api_document,
+                    UrlRouter(
+                        path='document',
+                        name='API文档',
+                        url='/api/schema/redoc/',
                         icon='connect'
                     ),
                     PageRouter(
