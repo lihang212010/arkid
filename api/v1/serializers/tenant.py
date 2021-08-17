@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from tenant.models import (
     Tenant, TenantConfig, TenantPasswordComplexity, TenantDesktopConfig,
     TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig,
-    TenantDevice, TenantUserProfileConfig
+    TenantUserProfileConfig, TenantLogConfig
 )
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
@@ -540,29 +540,25 @@ class TenantPrivacyNoticeSerializer(BaseDynamicFieldModelSerializer):
         return instance
 
 
-class TenantDeviceSerializer(BaseDynamicFieldModelSerializer):
+class LogConfigSerializer(serializers.Serializer):
+    log_api = serializers.CharField(label=_('日志读取API'), read_only=True)
+    log_retention_period = serializers.IntegerField(label=_('日志保留时间(天)'))
 
-    account_ids = serializers.ListField(child=serializers.CharField(), label=_('用户账号ID'), default=[])
+
+class TenantLogConfigSerializer(BaseDynamicFieldModelSerializer):
+
+    data = LogConfigSerializer()
 
     class Meta:
-        model = TenantDevice
+        model = TenantLogConfig
 
-        fields = (
-            'uuid',
-            'device_type',
-            'system_version',
-            'browser_version',
-            'ip',
-            'mac_address',
-            'device_number',
-            'device_id',
-            'account_ids'
-        )
+        fields = ('data', )
 
-    def create(self, validated_data):
-        tenant = self.context['tenant']
-        validated_data['tenant'] = tenant
-        device = TenantDevice.objects.create(
-            **validated_data
-        )
-        return device
+    def update(self, instance, validated_data):
+        data = validated_data.get('data')
+        instance.data = {
+            'log_api': data.get('log_api'),
+            'log_retention_period': data.get('log_retention_period'),
+        }
+        instance.save()
+        return instance
