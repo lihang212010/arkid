@@ -44,6 +44,7 @@ class UserSerializer(BaseDynamicFieldModelSerializer):
     email = create_hint_field(serializers.EmailField)(
         hint="请填写正确的email格式",
         required=False,
+        label='邮箱'
     )
     mobile = create_mobile_field(serializers.CharField)(
         hint="请填写正确的电话格式",
