@@ -17,8 +17,8 @@ from . import (
     contacts,
     desktop_config,
     contacts_switch,
-    contacts_group,
-    contacts_user,
+    contacts_group_config,
+    contacts_user_config,
     profile_config,
     tenant_config,
     sub_admin_config,
@@ -108,11 +108,11 @@ root_add_routers([
                                         icon='setting'
                                     ),
                                     PageRouter(
-                                        page=contacts_group,
+                                        page=contacts_group_config,
                                         icon='peoples'
                                     ),
                                     PageRouter(
-                                        page=contacts_user,
+                                        page=contacts_user_config,
                                         icon='people'
                                     )
                                 ]

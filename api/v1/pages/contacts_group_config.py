@@ -1,6 +1,6 @@
 from openapi.utils import extend_schema_tags
 
-tag = 'contacts_group'
+tag = 'contacts_group_config'
 path = tag
 name = '组的可见性'
 
@@ -13,15 +13,15 @@ extend_schema_tags(
             'path': '/api/v1/tenant/{tenant_uuid}/contactsconfig/group_visibility/',
             'method': 'get'
         },
-        'global': {
+        'local': {
             'update': {
-                'tag': 'contacts_group_visibility.update'
+                'tag': 'contacts_group_config.update'
             }
         }
     }
 )
 
-contacts_group_visibility_update_tag = 'contacts_group_visibility.update'
+contacts_group_visibility_update_tag = 'contacts_group_config.update'
 contacts_group_visibility_update_name = '编辑通讯录分组可见性'
 
 extend_schema_tags(
