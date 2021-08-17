@@ -1,14 +1,30 @@
 from django.db import models
 from common.model import BaseModel
 from tenant.models import Tenant
+from django.utils.translation import ugettext_lazy as _
 
 
 class Webhook(BaseModel):
 
-    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT)
-    name = models.CharField(max_length=128)
-    url = models.CharField(max_length=1024)
-    secret = models.CharField(max_length=128, blank=True, null=True)
+    tenant = models.ForeignKey(
+        Tenant, 
+        on_delete=models.PROTECT,
+        verbose_name=_("租户")
+    )
+    name = models.CharField(
+        max_length=128,
+        verbose_name=_("名称")
+    )
+    url = models.CharField(
+        max_length=1024,
+        verbose_name=_("链接")
+    )
+    secret = models.CharField(
+        max_length=128, 
+        blank=True, 
+        null=True,
+        verbose_name=_("密钥")
+    )
 
     def __str__(self):
         return self.name
