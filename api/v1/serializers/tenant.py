@@ -766,7 +766,9 @@ class LogConfigSerializer(serializers.Serializer):
 
 class TenantLogConfigSerializer(BaseDynamicFieldModelSerializer):
 
-    data = LogConfigSerializer()
+    data = LogConfigSerializer(
+        label=_("设置数据")
+    )
 
     class Meta:
         model = TenantLogConfig
