@@ -28,13 +28,17 @@ KEY = Fernet(base64.urlsafe_b64encode(settings.SECRET_KEY.encode()[:32]))
 class Permission(BaseModel):
 
     tenant = models.ForeignKey(
-        'tenant.Tenant', blank=False, null=True, on_delete=models.PROTECT
+        'tenant.Tenant', 
+        blank=False, 
+        null=True, 
+        on_delete=models.PROTECT,
+        verbose_name=_("租户")
     )
-    name = models.CharField(_('name'), max_length=255)
+    name = models.CharField(verbose_name=_('名称'), max_length=255)
     content_type = models.ForeignKey(
         ContentType,
         models.CASCADE,
-        verbose_name=_('content type'),
+        verbose_name=_('内容类型'),
         related_name='upermission_content_type',
     )
     codename = models.CharField(_('codename'), max_length=100)
