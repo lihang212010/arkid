@@ -15,13 +15,13 @@ extend_schema_tags(
         },
         'global': {
             'create': {
-                'tag': 'agent_rules_create'
+                'tag': 'agent_rules.create'
             }
         }
     }
 )
 
-agent_rule_create_tag = "agent_rules_create"
+agent_rule_create_tag = "agent_rules.create"
 agent_rule_create_name = "添加代理规则"
 
 extend_schema_tags(
