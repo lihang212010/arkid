@@ -4,32 +4,23 @@ from common.serializer import LoginRegisterConfigBaseSerializer
 from api.v1.fields.custom import create_password_field
 
 
-class MobileLoginRegisterConfigDataSerializer(serializers.Serializer):
+class EmailLoginRegisterConfigDataSerializer(serializers.Serializer):
 
-    login_enabled = serializers.BooleanField(default=True, label=_('启用登录'))
     register_enabled = serializers.BooleanField(default=True, label=_('启用注册'))
     reset_password_enabled = serializers.BooleanField(default=True, label=_('启用修改密码'))
 
 
-class MobileLoginRegisterConfigSerializer(LoginRegisterConfigBaseSerializer):
+class EmailLoginRegisterConfigSerializer(LoginRegisterConfigBaseSerializer):
 
-    data = MobileLoginRegisterConfigDataSerializer(label=_('配置数据'))
-
-
-class MobileLoginResponseSerializer(serializers.Serializer):
-
-    token = serializers.CharField(label=_('token'))
-    has_tenant_admin_perm = serializers.ListField(
-        child=serializers.CharField(), label=_('权限列表')
-    )
+    data = EmailLoginRegisterConfigDataSerializer(label=_('配置数据'))
 
 
-class MobileRegisterResponseSerializer(serializers.Serializer):
+class EmailRegisterResponseSerializer(serializers.Serializer):
 
     token = serializers.CharField(label=_('token'))
 
 
-class MobileResetPasswordRequestSerializer(serializers.Serializer):
+class EmailResetPasswordRequestSerializer(serializers.Serializer):
 
     mobile = serializers.CharField(label=_('手机号'), required=True)
     password = create_password_field(serializers.CharField)(

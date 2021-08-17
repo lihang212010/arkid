@@ -25,113 +25,49 @@ from api.v1.serializers.sms import (
 from django.http.response import JsonResponse
 from common.code import Code
 from .serializers import (
-    MobileLoginResponseSerializer,
-    MobileRegisterResponseSerializer,
-    MobileResetPasswordRequestSerializer,
+    EmailRegisterResponseSerializer,
+    EmailResetPasswordRequestSerializer,
     PasswordSerializer,
 )
 from inventory.models import User
-from django.utils.translation import gettext_lazy as _
+from api.v1.serializers.email import (
+    RegisterEmailClaimSerializer,
+    ResetPWDEmailClaimSerializer,
+)
 
 
 @extend_schema(
-    tags=['mobile-login-register'],
+    tags=['email-login-register'],
     roles=['general user', 'tenant admin', 'global admin'],
-    responses=MobileLoginResponseSerializer,
+    responses=EmailRegisterResponseSerializer,
 )
-class MobileLoginView(APIView):
-    def post(self, request, pk):
-        # uuid = self.kwargs['pk']
-        tenant = Tenant.active_objects.filter(uuid=pk).first()
-        mobile = request.data.get('mobile')
-        code = request.data.get('code')
-        thirdparty_data = request.data.get('thirdparty', None)
-
-        runtime = get_app_runtime()
-
-        sms_code_key = LoginSMSClaimSerializer.gen_sms_code_key(mobile)
-        cache_code = runtime.cache_provider.get(sms_code_key)
-
-        if isinstance(cache_code, bytes):
-            cache_code = str(cache_code, 'utf-8')
-
-        if code != '123456' and (code is None or cache_code != code):
-            return JsonResponse(
-                data={
-                    'error': Code.SMS_CODE_MISMATCH.value,
-                    'message': _('SMS Code not match'),
-                }
-            )
-
-        user = User.active_objects.filter(mobile=mobile).first()
-
-        if not user:
-            return JsonResponse(
-                data={
-                    'error': Code.USERNAME_EXISTS_ERROR.value,
-                    'message': _('username is not correct'),
-                }
-            )
-
-        token = user.refresh_token()
-
-        has_tenant_admin_perm = tenant.has_admin_perm(user)
-
-        if thirdparty_data is not None:
-            bind_key = thirdparty_data.pop('bind_key')
-            assert bind_key is not None
-
-            for eidp in self.runtime.external_idps:
-                provider = eidp.provider
-                if provider.bind_key == bind_key:
-                    if hasattr(provider, 'bind'):
-                        provider.bind(user, thirdparty_data)
-
-                    break
-
-        return JsonResponse(
-            data={
-                'error': Code.OK.value,
-                'data': {
-                    'token': token.key,
-                    'has_tenant_admin_perm': has_tenant_admin_perm,
-                },
-            }
-        )
-
-
-@extend_schema(
-    tags=['mobile-login-register'],
-    roles=['general user', 'tenant admin', 'global admin'],
-    responses=MobileRegisterResponseSerializer,
-)
-class MobileRegisterView(APIView):
+class EmailRegisterView(APIView):
     def post(self, request, pk):
         tenant = Tenant.active_objects.filter(uuid=pk).first()
-        mobile = request.data.get('mobile')
+        email = request.data.get('email')
         code = request.data.get('code')
         password = request.data.get('password')
         ip = self.get_client_ip(request)
         from django.db.models import Q
 
-        sms_code_key = RegisterSMSClaimSerializer.gen_sms_code_key(mobile)
-        cache_code = self.runtime.cache_provider.get(sms_code_key)
+        email_code_key = RegisterEmailClaimSerializer.gen_email_verify_code_key(email)
+        cache_code = self.runtime.cache_provider.get(email_code_key)
         if code != '123456' and (code is None or str(cache_code) != code):
             return JsonResponse(
                 data={
-                    'error': Code.SMS_CODE_MISMATCH.value,
-                    'message': _('SMS Code not match'),
+                    'error': Code.EMAIL_CODE_MISMATCH.value,
+                    'message': _('Email Code not match'),
                 }
             )
 
         user_exists = User.active_objects.filter(
-            Q(username=mobile) | Q(mobile=mobile)
+            Q(username=email) | Q(email=email)
         ).exists()
         if user_exists:
             return JsonResponse(
                 data={
-                    'error': Code.MOBILE_ERROR.value,
-                    'message': _('mobile already exists'),
+                    'error': Code.EMAIL_ERROR.value,
+                    'message': _('email already exists'),
                 }
             )
         if not password:
@@ -141,13 +77,14 @@ class MobileRegisterView(APIView):
                     'message': _('password is empty'),
                 }
             )
-        if self.check_password(tenant.uuid, password) is False:
-            return JsonResponse(
-                data={
-                    'error': Code.PASSWORD_STRENGTH_ERROR.value,
-                    'message': _('password strength not enough'),
-                }
-            )
+        # TODO 检查密码复杂度逻辑抽象
+        # if self.check_password(tenant.uuid, password) is False:
+        #     return JsonResponse(
+        #         data={
+        #             'error': Code.PASSWORD_STRENGTH_ERROR.value,
+        #             'message': _('password strength not enough'),
+        #         }
+        #     )
         # 判断注册次数
         login_config = self.get_login_config(pk)
         is_open_register_limit = login_config.get('is_open_register_limit', False)
@@ -165,8 +102,8 @@ class MobileRegisterView(APIView):
         user, created = User.objects.get_or_create(
             is_del=False,
             is_active=True,
-            username=mobile,
-            mobile=mobile,
+            username=email,
+            email=email,
         )
         user.tenants.add(tenant)
         user.set_password(password)
@@ -194,10 +131,10 @@ class MobileRegisterView(APIView):
 
 
 @extend_schema(
-    tags=['mobile-login-register'],
+    tags=['email-login-register'],
     roles=['general user', 'tenant admin', 'global admin'],
 )
-class MobileResetPasswordView(generics.CreateAPIView):
+class EmailResetPasswordView(generics.CreateAPIView):
     '''
     user forget password reset api
     '''
@@ -205,14 +142,15 @@ class MobileResetPasswordView(generics.CreateAPIView):
     permission_classes = []
     authentication_classes = []
 
-    serializer_class = MobileResetPasswordRequestSerializer
+    serializer_class = EmailResetPasswordRequestSerializer
 
     @extend_schema(responses=PasswordSerializer)
     def post(self, request):
-        mobile = request.data.get('mobile', '')
+        email = request.data.get('email', '')
         password = request.data.get('password', '')
+        # checkpassword = request.data.get('checkpassword', '')
         code = request.data.get('code', '')
-        user = User.objects.filter(mobile=mobile).first()
+        user = User.objects.filter(email=email).first()
         if not user:
             return JsonResponse(
                 data={
@@ -229,14 +167,12 @@ class MobileResetPasswordView(generics.CreateAPIView):
             )
         # 检查验证码
         try:
-            sms_token, expire_time = ResetPWDSMSClaimSerializer.check_sms(
-                {'mobile': mobile, 'code': code}
-            )
+            ret = ResetPWDEmailClaimSerializer.check_email_verify_code(email, code)
         except ValidationError:
             return JsonResponse(
                 data={
-                    'error': Code.SMS_CODE_MISMATCH.value,
-                    'message': _('sms code mismatch'),
+                    'error': Code.EMAIL_CODE_MISMATCH.value,
+                    'message': _('email code mismatch'),
                 }
             )
         user.set_password(password)
