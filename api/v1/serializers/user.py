@@ -48,7 +48,15 @@ class UserSerializer(BaseDynamicFieldModelSerializer):
     mobile = create_mobile_field(serializers.CharField)(
         hint="请填写正确的电话格式",
         required=False,
+        label=_('手机')
     )
+
+    bind_info = create_mobile_field(serializers.CharField)(
+        hint="",
+        required=False,
+        label=_('绑定信息')
+    )
+
     set_groups = create_foreign_key_field(serializers.ListField)(
         model_cls=User,
         field_name='uuid',

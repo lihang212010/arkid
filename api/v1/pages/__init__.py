@@ -16,7 +16,9 @@ from . import (
     login_register_config,
     contacts,
     desktop_config,
-    contacts_config,
+    contacts_switch,
+    contacts_group,
+    contacts_user,
     profile_config,
     tenant_config,
     sub_admin_config,
@@ -96,9 +98,24 @@ root_add_routers([
                                 page=desktop_config,
                                 icon='desktop'
                             ),
-                            PageRouter(
-                                page=contacts_config,
-                                icon='education'
+                            Router(
+                                path='contacts_config',
+                                name='通讯录设置',
+                                icon='education',
+                                children=[
+                                    PageRouter(
+                                        page=contacts_switch,
+                                        icon='setting'
+                                    ),
+                                    PageRouter(
+                                        page=contacts_group,
+                                        icon='peoples'
+                                    ),
+                                    PageRouter(
+                                        page=contacts_user,
+                                        icon='people'
+                                    )
+                                ]
                             ),
                             PageRouter(
                                 page=profile_config,
@@ -167,10 +184,10 @@ root_add_routers([
                         page=permission_manage,
                         icon='tree-table'
                     ),
-                    PageRouter(
-                        page=permission_strategy,
-                        icon='process'
-                    )
+                    # PageRouter(
+                    #     page=permission_strategy,
+                    #     icon='process'
+                    # )
                 ]
             ),
             Router(

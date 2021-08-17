@@ -15,13 +15,13 @@ extend_schema_tags(
         },
         'global': {
             'create': {
-                'tag': 'auth_rules_create'
+                'tag': 'auth_rules.create'
             }
         }
     }
 )
 
-auth_rule_create_tag = "auth_rules_create"
+auth_rule_create_tag = "auth_rules.create"
 auth_rule_create_name = "添加认证规则"
 
 extend_schema_tags(

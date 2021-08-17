@@ -6,15 +6,9 @@ from api.v1.fields.custom import (
 
 class LogSerializer(serializers.Serializer):
 
-    uuid = serializers.CharField(read_only=True)
-    timestamp =  create_title_field(serializers.CharField)(
-        read_only=True,
-        label='时间戳'
-    )
-    action = create_title_field(serializers.CharField)(
-        read_only=True,
-        label='操作'
-    )
+    uuid = serializers.CharField(read_only=True, label="唯一标识符")
+    timestamp = serializers.CharField(read_only=True, label="时间戳")
+    action = serializers.CharField(read_only=True, label="操作")
 
     class Meta:
 

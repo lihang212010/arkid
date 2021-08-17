@@ -1,31 +1,27 @@
 from openapi.utils import extend_schema_tags
 
-tag = [ 'login_register_config', 'login_register_config_info', 'tenant_register_privacy_notice' ]
+tag = ['login_register_config', 'tenant_register_privacy_notice', 'login_register_config_info']
 path = 'login_register_config'
 name = '登录注册配置'
 
 login_register_config_tag = 'login_register_config'
-login_register_config_name = '登录注册插件配置'
+login_register_config_name = '登录注册配置'
 
 extend_schema_tags(
     login_register_config_tag,
     login_register_config_name,
     {
-        'type': 'form_page',
+        'type': 'table_page',
         'init': {
             'path': '/api/v1/tenant/{parent_lookup_tenant}/login_register_config/',
             'method': 'get',
         },
-        'global': {
-            'create': {
-                'tag': 'login_register_config.create'
-            }
-        },
+        'global': {'create': {'tag': 'login_register_config.create'}},
     },
 )
 
 login_register_config_create_tag = 'login_register_config.create'
-login_register_config_create_name = '创建登录注册插件信息'
+login_register_config_create_name = '创建登录注册配置信息'
 
 extend_schema_tags(
     login_register_config_create_tag,
@@ -46,7 +42,7 @@ extend_schema_tags(
 )
 
 login_register_config_update_tag = 'login_register_config.update'
-login_register_config_update_name = '编辑登录注册插件信息'
+login_register_config_update_name = '编辑登录注册配置信息'
 
 extend_schema_tags(
     login_register_config_update_tag,
@@ -64,47 +60,6 @@ extend_schema_tags(
             }
         },
     },
-)
-
-login_register_config_info_tag = 'login_register_config_info'
-login_register_config_info_name = '登录注册配置'
-
-extend_schema_tags(
-    login_register_config_info_tag,
-    login_register_config_info_name,
-    {
-        'type':'form_page',
-        'init': {
-            'path': '/api/v1/tenant/{tenant_uuid}/config/',
-            'method': 'get'
-        },
-        'global': {
-            'update': {
-                'tag': 'login_register_config_info.update'
-            }
-        }
-    }
-)
-
-login_register_config_info_update_tag = 'login_register_config_info.update'
-login_register_config_info_update_name = '编辑登录注册配置'
-
-extend_schema_tags(
-    login_register_config_info_update_tag,
-    login_register_config_info_update_name,
-    {
-        'type': 'form_page',
-        'init': {
-            'path': '/api/v1/tenant/{tenant_uuid}/config/',
-            'method': 'get'
-        },
-        'global': {
-            'update': {
-                'path': '/api/v1/tenant/{tenant_uuid}/config/',
-                'method': 'patch'
-            }
-        }
-    }
 )
 
 tenant_register_privacy_notice_tag = 'tenant_register_privacy_notice'
@@ -142,4 +97,46 @@ extend_schema_tags(
             }
         },
     },
+)
+
+
+login_register_config_info_tag = 'login_register_config_info'
+login_register_config_info_name = '登录注册配置'
+
+extend_schema_tags(
+    login_register_config_info_tag,
+    login_register_config_info_name,
+    {
+        'type':'form_page',
+        'init': {
+            'path': '/api/v1/tenant/{tenant_uuid}/config/',
+            'method': 'get'
+        },
+        'global': {
+            'update': {
+                'tag': 'login_register_config_info.update'
+            }
+        }
+    }
+)
+
+login_register_config_info_update_tag = 'login_register_config_info.update'
+login_register_config_info_update_name = '编辑登录注册配置信息'
+
+extend_schema_tags(
+    login_register_config_info_update_tag,
+    login_register_config_info_update_name,
+    {
+        'type': 'form_page',
+        'init': {
+            'path': '/api/v1/tenant/{tenant_uuid}/config/',
+            'method': 'get'
+        },
+        'global': {
+            'update': {
+                'path': '/api/v1/tenant/{tenant_uuid}/config/',
+                'method': 'patch'
+            }
+        }
+    }
 )
