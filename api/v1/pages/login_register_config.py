@@ -16,7 +16,11 @@ extend_schema_tags(
             'path': '/api/v1/tenant/{parent_lookup_tenant}/login_register_config/',
             'method': 'get',
         },
-        'global': {'create': {'tag': 'login_register_config.create'}},
+        'global': {
+            'create': {
+                'tag': 'login_register_config.create'
+            }
+        }
     },
 )
 
@@ -74,7 +78,11 @@ extend_schema_tags(
             'path': '/api/v1/tenant/{tenant_uuid}/privacy_notice/',
             'method': 'get',
         },
-        'global': {'update': {'tag': 'tenant_register_privacy_notice.update'}},
+        'global': {
+            'update': {
+                'tag': 'tenant_register_privacy_notice.update'
+            }
+        }
     },
 )
 
