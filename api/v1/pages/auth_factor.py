@@ -5,7 +5,7 @@ path = "auth_factor"
 name = '认证因素'
 
 auth_factor_tag = 'auth_factor_config'
-auth_factor_name="认证因素列表"
+auth_factor_name = "认证因素列表"
 
 extend_schema_tags(
     auth_factor_tag,
@@ -16,10 +16,15 @@ extend_schema_tags(
             'path': '/api/v1/tenant/{tenant_uuid}/authfactor/',
             'method': 'get'
         },
-        'local': {
-            'update': {
-                'tag': 'auth_factor_config.update'
-            },
+        # 'local': {
+        #     'update': {
+        #         'tag': 'auth_factor_config.update'
+        #     },
+        # },
+        'global': {
+            'create': {
+                'tag': 'auth_factor_config.create'
+            }
         }
     }
 )
@@ -40,29 +45,29 @@ extend_schema_tags(
         'global': {
             'update': {
                 'path': '/api/v1/tenant/{tenant_uuid}/authfactor/',
-                'method': 'get'
+                'method': 'put'
             }
         }
     }
 )
 
 
-password_tag="auth_factor_password_config"
-password_name="密码配置"
+auth_factor_create_tag = 'auth_factor_config.create'
+auth_factor_create_name = '添加认证因素'
 
 extend_schema_tags(
-    password_tag,
-    password_name,
+    auth_factor_create_tag,
+    auth_factor_create_name,
     {
-        "type": "form_page",
-        "init": {
-            'path': '/api/v1/tenant/{tenant_uuid}/password_config/',
-            'method': 'get'
+        'type': 'form_page',
+        'init': {
+            'path': '/api/v1/tenant/{tenant_uuid}/authfactor_create/',
+            'method': 'post'
         },
         'global': {
-            'update': {
-                'path': '/api/v1/tenant/{tenant_uuid}/password_config/',
-                'method': 'put'
+            'create': {
+                'path': '/api/v1/tenant/{tenant_uuid}/authfactor_create/',
+                'method': 'post'
             }
         }
     }

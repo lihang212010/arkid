@@ -116,6 +116,27 @@ class AuthorizationAgentProvider:
         """
         return []
 
+class AuthFactorProvider:
+
+    id: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    is_support_registe: Optional[bool] = None
+    is_support_auth:Optional[bool] = None
+
+    def __init__(self, id: str, name: str,is_support_registe:bool,is_support_auth:bool,description: str = '') -> None:
+        self.id = id
+        self.name = name
+        self.description = description
+        self.is_support_registe = is_support_registe
+        self.is_support_auth = is_support_auth
+
+    @property
+    def app_settings_schema(self):
+        """
+        描述创建Agent时候需要配置的参数
+        """
+        return []
 
 class MFAProvider:
     @abstractmethod

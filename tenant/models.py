@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 from common.model import BaseModel
 from typing import TYPE_CHECKING
 
@@ -72,6 +73,31 @@ class TenantPasswordComplexity(BaseModel):
         else:
             return False
 
+class TenantAgentRule(BaseModel):
+
+    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, verbose_name='租户')
+    is_apply = models.BooleanField(default=False, verbose_name='是否启用')
+    title = models.CharField(
+        verbose_name='标题', max_length=128, default='', null=True, blank=True
+    )
+    data = models.JSONField(blank=True, default=dict)
+
+    @property
+    def tenant_uuid(self):
+        return self.tenant.uuid
+
+class TenantAuthRule(BaseModel):
+
+    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, verbose_name='租户')
+    is_apply = models.BooleanField(default=False, verbose_name='是否启用')
+    title = models.CharField(
+        verbose_name='标题', max_length=128, default='', null=True, blank=True
+    )
+    data = models.JSONField(blank=True, default=dict)
+
+    @property
+    def tenant_uuid(self):
+        return self.tenant.uuid
 
 class TenantContactsConfig(BaseModel):
 
@@ -128,6 +154,48 @@ class TenantUserProfileConfig(BaseModel):
     @property
     def tenant_uuid(self):
         return self.tenant.uuid
+
+class TenantAuthFactor(BaseModel):
+    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, verbose_name='租户')
+    type = models.CharField(max_length=128, verbose_name=_('认证因素类型'))
+    is_open = models.BooleanField(
+        verbose_name=_("是否启用")
+    )
+
+    @property
+    def is_support_registe(self):
+        from runtime import get_app_runtime
+        r = get_app_runtime()
+        return r.auth_factor_mappings[self.type].is_support_registe
+
+    @property
+    def is_support_auth(self):
+        from runtime import get_app_runtime
+        r = get_app_runtime()
+        return r.auth_factor_mappings[self.type].is_support_auth
+
+    @property
+    def name(self):
+        return self.type
+
+    @property
+    def description(self):
+        from runtime import get_app_runtime
+        r = get_app_runtime()
+        return r.auth_factor_mappings[self.type].description
+
+    def as_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'is_open':self.is_open,
+            'is_del': self.is_del,
+            'is_active': self.is_active,
+            'description': self.description,
+            'is_support_auth':self.is_support_auth,
+            'is_support_registe':self.is_support_registe,
+            'type': self.type,
+        }
 
 
 class TenantContactsUserFieldConfig(BaseModel):

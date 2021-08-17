@@ -24,6 +24,7 @@ from . import (
     system,
     email,
     data_sync,
+    sdk,
     login_register_config,
     device,
     log,
@@ -77,4 +78,5 @@ urlpatterns += config.urlpatterns
 urlpatterns += system.urlpatterns
 urlpatterns += email.urlpatterns
 urlpatterns += app.urlpatterns
+urlpatterns += sdk.urlpatterns
 urlpatterns += device.urlpatterns
