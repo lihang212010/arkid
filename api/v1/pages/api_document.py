@@ -6,5 +6,12 @@ name = 'API文档'
 
 extend_schema_tags(
     tag,
-    name
+    name,
+    {
+        'type': 'html',
+        'init': {
+            'path': '/api/schema/redoc/',
+            'method': 'get'
+        }
+    }
 )

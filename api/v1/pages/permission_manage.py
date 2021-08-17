@@ -6,5 +6,12 @@ name = '权限管理'
 
 extend_schema_tags(
     tag,
-    name
+    name,
+    {
+        'type': 'table_page',
+        'init': {
+           'path': '/api/v1/tenant/{parent_lookup_tenant}/permission_manage/',
+           'method': 'get'
+        }
+    }
 )
