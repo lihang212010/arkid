@@ -7,18 +7,41 @@ from rest_framework import generics
 from openapi.utils import extend_schema
 from rest_framework.response import Response
 from tenant.models import (
-    Tenant, TenantConfig, TenantPasswordComplexity,
-    TenantContactsConfig, TenantContactsUserFieldConfig, TenantPrivacyNotice,
-    TenantUserProfileConfig, TenantPasswordConfig, TenantLogConfig,
+    Tenant,
+    TenantConfig,
+    TenantPasswordComplexity,
+    TenantContactsConfig,
+    TenantContactsUserFieldConfig,
+    TenantPrivacyNotice,
+    TenantUserProfileConfig,
+    TenantPasswordConfig,
+    TenantLogConfig,
 )
 from api.v1.serializers.tenant import (
-    TenantAuthRefactorSerializer, TenantDesktopConfigSerializer, TenantPasswordConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer, TenantUserProfileConfigSerializer,
-    UserNameRegisterRequestSerializer, MobileLoginResponseSerializer, MobileRegisterResponseSerializer,
-    UserNameRegisterResponseSerializer, UserNameLoginResponseSerializer, TenantConfigSerializer,
-    UserNameLoginRequestSerializer, TenantPasswordComplexitySerializer, TenantContactsConfigFunctionSwitchSerializer,
-    TenantContactsConfigInfoVisibilitySerializer, TenantContactsConfigGroupVisibilitySerializer, ContactsGroupSerializer,
-    ContactsUserSerializer, TenantContactsUserTagsSerializer, TenantPrivacyNoticeSerializer,
-    TenantLogConfigSerializer, ChildManagerSerializer,
+    TenantAuthRefactorSerializer,
+    TenantDesktopConfigSerializer,
+    TenantPasswordConfigSerializer,
+    TenantSerializer,
+    MobileLoginRequestSerializer,
+    MobileRegisterRequestSerializer,
+    TenantUserProfileConfigSerializer,
+    UserNameRegisterRequestSerializer,
+    MobileLoginResponseSerializer,
+    MobileRegisterResponseSerializer,
+    UserNameRegisterResponseSerializer,
+    UserNameLoginResponseSerializer,
+    TenantConfigSerializer,
+    UserNameLoginRequestSerializer,
+    TenantPasswordComplexitySerializer,
+    TenantContactsConfigFunctionSwitchSerializer,
+    TenantContactsConfigInfoVisibilitySerializer,
+    TenantContactsConfigGroupVisibilitySerializer,
+    ContactsGroupSerializer,
+    ContactsUserSerializer,
+    TenantContactsUserTagsSerializer,
+    TenantPrivacyNoticeSerializer,
+    TenantLogConfigSerializer,
+    ChildManagerSerializer,
 )
 from api.v1.serializers.app import AppBaseInfoSerializer
 from api.v1.serializers.sms import RegisterSMSClaimSerializer, LoginSMSClaimSerializer
@@ -219,6 +242,7 @@ class TenantViewSet(BaseViewSet):
                 'error': Code.OK.value,
                 'data': {
                     'token': token.key,
+                    'user_uuid': user.uuid.hex,
                     'has_tenant_admin_perm': has_tenant_admin_perm,
                 },
             }
@@ -309,6 +333,7 @@ class TenantViewSet(BaseViewSet):
                 'error': Code.OK.value,
                 'data': {
                     'token': token.key,  # TODO: fullfil user info
+                    'user_uuid': user.uuid.hex,
                     'need_complete_profile_after_register': need_complete_profile_after_register,
                     'can_skip_complete_profile': can_skip_complete_profile,
                 },
@@ -400,6 +425,7 @@ class TenantViewSet(BaseViewSet):
                 'error': Code.OK.value,
                 'data': {
                     'token': token.key,  # TODO: fullfil user info
+                    'user_uuid': user.uuid.hex,
                     'need_complete_profile_after_register': need_complete_profile_after_register,
                     'can_skip_complete_profile': can_skip_complete_profile,
                 },
@@ -864,6 +890,7 @@ class TenantViewSet(BaseViewSet):
                 'error': Code.OK.value,
                 'data': {
                     'token': token.key,
+                    'user_uuid': user.uuid.hex,
                     'has_tenant_admin_perm': has_tenant_admin_perm,
                 },
             }
@@ -959,6 +986,7 @@ class TenantViewSet(BaseViewSet):
                 'error': Code.OK.value,
                 'data': {
                     'token': token.key,  # TODO: fullfil user info
+                    'user_uuid': user.uuid.hex,
                     'need_complete_profile_after_register': need_complete_profile_after_register,
                     'can_skip_complete_profile': can_skip_complete_profile,
                 },
@@ -1120,7 +1148,10 @@ class TenantContactsConfigFunctionSwitchView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
-        return TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=0).first()
+        return TenantContactsConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid, config_type=0
+        ).first()
+
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantDesktopConfigView(generics.RetrieveUpdateAPIView):
@@ -1129,12 +1160,15 @@ class TenantDesktopConfigView(generics.RetrieveUpdateAPIView):
     authentication_classes = [ExpiringTokenAuthentication]
 
     serializer_class = TenantDesktopConfigSerializer
- 
+
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
-        config, iscreated = TenantDesktopConfig.active_objects.get_or_create(tenant=tenant)
+        config, iscreated = TenantDesktopConfig.active_objects.get_or_create(
+            tenant=tenant
+        )
         return config
+
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantPasswordConfigView(generics.RetrieveUpdateAPIView):
@@ -1143,12 +1177,15 @@ class TenantPasswordConfigView(generics.RetrieveUpdateAPIView):
     authentication_classes = [ExpiringTokenAuthentication]
 
     serializer_class = TenantPasswordConfigSerializer
- 
+
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
-        config, iscreated = TenantPasswordConfig.active_objects.get_or_create(tenant=tenant)
+        config, iscreated = TenantPasswordConfig.active_objects.get_or_create(
+            tenant=tenant
+        )
         return config
+
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantUserProfileConfigView(generics.RetrieveUpdateAPIView):
@@ -1157,12 +1194,15 @@ class TenantUserProfileConfigView(generics.RetrieveUpdateAPIView):
     authentication_classes = [ExpiringTokenAuthentication]
 
     serializer_class = TenantUserProfileConfigSerializer
- 
+
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
-        config, iscreated = TenantUserProfileConfig.active_objects.get_or_create(tenant=tenant)
+        config, iscreated = TenantUserProfileConfig.active_objects.get_or_create(
+            tenant=tenant
+        )
         return config
+
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantAuthRefactorView(generics.ListAPIView):
@@ -1172,7 +1212,7 @@ class TenantAuthRefactorView(generics.ListAPIView):
 
     serializer_class = TenantAuthRefactorSerializer
     pagination_class = DefaultListPaginator
- 
+
     def get_queryset(self):
         return [
             {
@@ -1213,6 +1253,7 @@ class TenantAuthRefactorView(generics.ListAPIView):
             },
         ]
 
+
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantContactsConfigInfoVisibilityDetailView(generics.RetrieveUpdateAPIView):
 
@@ -1224,7 +1265,9 @@ class TenantContactsConfigInfoVisibilityDetailView(generics.RetrieveUpdateAPIVie
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
         info_uuid = self.kwargs['info_uuid']
-        return TenantContactsUserFieldConfig.active_objects.filter(tenant__uuid=tenant_uuid, uuid=info_uuid).first()
+        return TenantContactsUserFieldConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid, uuid=info_uuid
+        ).first()
 
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
@@ -1238,7 +1281,9 @@ class TenantContactsConfigInfoVisibilityView(generics.ListAPIView):
 
     def get_queryset(self):
         tenant_uuid = self.kwargs['tenant_uuid']
-        return TenantContactsUserFieldConfig.active_objects.filter(tenant__uuid=tenant_uuid).order_by('-id')
+        return TenantContactsUserFieldConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid
+        ).order_by('-id')
 
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
@@ -1251,7 +1296,9 @@ class TenantContactsConfigGroupVisibilityView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
-        return TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=1).first()
+        return TenantContactsConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid, config_type=1
+        ).first()
 
 
 @extend_schema(roles=['general user', 'tenant admin', 'global admin'], tags=['tenant'])
@@ -1268,7 +1315,9 @@ class TenantContactsGroupView(generics.ListAPIView):
         # {
         #     "is_open": true
         # }
-        config = TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=0).first()
+        config = TenantContactsConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid, config_type=0
+        ).first()
         return config.data
 
     def get_group_visible(self, tenant_uuid):
@@ -1281,7 +1330,9 @@ class TenantContactsGroupView(generics.ListAPIView):
         #     "assign_group": [],
         #     "assign_user": []
         # }
-        config = TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=1).first()
+        config = TenantContactsConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid, config_type=1
+        ).first()
         return config.data
 
     def get_queryset(self):
@@ -1369,7 +1420,9 @@ class TenantContactsUserView(generics.ListAPIView):
         # {
         #     "is_open": true
         # }
-        config = TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=0).first()
+        config = TenantContactsConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid, config_type=0
+        ).first()
         return config.data
 
     def get_queryset(self):
@@ -1394,11 +1447,9 @@ class TenantContactsUserView(generics.ListAPIView):
             '姓名': 'nickname',
             '电话': 'mobile',
             '邮箱': 'email',
-            '职位': 'job_title'
+            '职位': 'job_title',
         }
-        configs = TenantContactsUserFieldConfig.active_objects.filter(
-            tenant=tenant
-        )
+        configs = TenantContactsUserFieldConfig.active_objects.filter(tenant=tenant)
         myself_field = []
         manager_field = []
         part_field = []
@@ -1418,7 +1469,10 @@ class TenantContactsUserView(generics.ListAPIView):
                     myself_field.append(item_name)
                 if visible_type == '部分人可见' and '管理员可见' in visible_scope:
                     manager_field.append(item_name)
-                    if tenant.has_admin_perm(user) is True and item_name not in current_user_field:
+                    if (
+                        tenant.has_admin_perm(user) is True
+                        and item_name not in current_user_field
+                    ):
                         current_user_field.append(item_name)
                 if visible_type == '部分人可见' and '指定分组与人员' in visible_scope:
                     part_field.append(item_name)
@@ -1429,15 +1483,24 @@ class TenantContactsUserView(generics.ListAPIView):
                         groups = user.groups
                         for group in groups:
                             uuid = group.uuid
-                            if uuid in assign_group and item_name not in current_user_field:
+                            if (
+                                uuid in assign_group
+                                and item_name not in current_user_field
+                            ):
                                 current_user_field.append(item_name)
         for item in qs:
-            if 'username' not in all_user_field and 'username' not in current_user_field:
+            if (
+                'username' not in all_user_field
+                and 'username' not in current_user_field
+            ):
                 if 'username' in myself_field and item.uuid_hex == user.uuid_hex:
                     pass
                 else:
                     item.username = ''
-            if 'nickname' not in all_user_field and 'nickname' not in current_user_field:
+            if (
+                'nickname' not in all_user_field
+                and 'nickname' not in current_user_field
+            ):
                 if 'nickname' in myself_field and item.uuid_hex == user.uuid_hex:
                     pass
                 else:
@@ -1452,7 +1515,10 @@ class TenantContactsUserView(generics.ListAPIView):
                     pass
                 else:
                     item.email = ''
-            if 'job_title' not in all_user_field and 'job_title' not in current_user_field:
+            if (
+                'job_title' not in all_user_field
+                and 'job_title' not in current_user_field
+            ):
                 if 'job_title' in myself_field and item.uuid_hex == user.uuid_hex:
                     pass
                 else:
@@ -1465,9 +1531,7 @@ class TenantContactsUserTagsView(generics.RetrieveAPIView):
 
     serializer_class = TenantContactsUserTagsSerializer
 
-    @extend_schema(
-        responses=TenantContactsUserTagsSerializer
-    )
+    @extend_schema(responses=TenantContactsUserTagsSerializer)
     def get(self, request, tenant_uuid):
         tenant = Tenant.active_objects.filter(uuid=tenant_uuid).first()
         dict_item = {
@@ -1475,11 +1539,9 @@ class TenantContactsUserTagsView(generics.RetrieveAPIView):
             '姓名': 'nickname',
             '电话': 'mobile',
             '邮箱': 'email',
-            '职位': 'job_title'
+            '职位': 'job_title',
         }
-        configs = TenantContactsUserFieldConfig.active_objects.filter(
-            tenant=tenant
-        )
+        configs = TenantContactsUserFieldConfig.active_objects.filter(tenant=tenant)
         myself_field = []
         manager_field = []
         part_field = []
@@ -1499,12 +1561,14 @@ class TenantContactsUserTagsView(generics.RetrieveAPIView):
                 if visible_type == '部分人可见' and '指定分组与人员' in visible_scope:
                     part_field.append(item_name)
 
-        serializer = self.get_serializer({
-            'myself_field': myself_field,
-            'manager_field': manager_field,
-            'part_field': part_field,
-            'all_user_field': all_user_field
-        })
+        serializer = self.get_serializer(
+            {
+                'myself_field': myself_field,
+                'manager_field': manager_field,
+                'part_field': part_field,
+                'all_user_field': all_user_field,
+            }
+        )
         return Response(serializer.data)
 
 

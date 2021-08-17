@@ -35,10 +35,7 @@ extend_schema_tags(
         'type': 'table_page',
         'init': {
             'path': '/api/v1/tenant/{tenant_uuid}/contacts/user/',
-            'method': 'get',
-            'params': {
-                'group_uuid': 'contacts_group.children'
-            }
+            'method': 'get'
         }
     }
 )
