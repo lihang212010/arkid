@@ -1,9 +1,10 @@
 
+from django.db.models.enums import Choices
 from runtime import get_app_runtime
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import ChoiceField
 from tenant.models import (
-    Tenant, TenantAuthFactor, TenantConfig, TenantPasswordComplexity, TenantDesktopConfig,
+    Tenant, TenantAgentRule, TenantAuthFactor, TenantConfig, TenantPasswordComplexity, TenantDesktopConfig,
     TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig,
     TenantDevice, TenantUserProfileConfig
 )
@@ -417,6 +418,62 @@ class TenantAuthRefactorSerializer(serializers.Serializer):
     is_support_auth = serializers.BooleanField(
         label=_("是否支持认证")
     )
+
+class TenantAngentRuleDataSerializer(serializers.Serializer):
+
+    agents = serializers.ListField(
+        label=_("身份源代理"),
+        child = serializers.ChoiceField(
+            choices=(
+                ("微软AD","LDAP")
+            )
+        )
+    )
+
+    apps = serializers.ListField(
+        label=_("应用"),
+        child = serializers.ChoiceField(
+            choices=(
+                ("小红书","阿里云")
+            )
+        )
+    )
+
+class TenantAgentRuleSerializer(BaseDynamicFieldModelSerializer):
+
+    data = TenantAngentRuleDataSerializer(
+        label=_("规则")
+    )
+    
+    class Meta:
+        model = TenantAgentRule
+        fields=[
+            "id",
+            "is_apply",
+            "title",
+            "data"
+        ]
+
+class TenantAgentRuleDetailSerializer(BaseDynamicFieldModelSerializer):
+
+    agents = serializers.SerializerMethodField(label=_("身份源代理"))
+
+    apps = serializers.SerializerMethodField(label=_("应用"))
+
+    def get_agents(self,obj):
+        return obj.data.get("agents")
+
+    def get_apps(self,obj):
+        return obj.data.get("apps")
+    
+    class Meta:
+        model = TenantAgentRule
+        fields=[
+            "title",
+            "agents",
+            "apps",
+            "is_apply",
+        ]
 
 def get_authfactor_tyoe_choices():
     from runtime import get_app_runtime

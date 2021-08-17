@@ -7,12 +7,12 @@ from rest_framework import generics, serializers
 from openapi.utils import extend_schema
 from rest_framework.response import Response
 from tenant.models import (
-    Tenant, TenantAuthFactor, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
+    Tenant, TenantAgentRule, TenantAuthFactor, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
     TenantContactsConfig, TenantContactsUserFieldConfig, TenantPrivacyNotice, TenantUserProfileConfig,
     TenantDevice, TenantPasswordConfig,
 )
 from api.v1.serializers.tenant import (
-    TenantAuthRefactorCreateSerializer, TenantAuthRefactorSerializer, TenantDesktopConfigSerializer, TenantPasswordConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer, TenantUserProfileConfigSerializer,
+    TenantAgentRuleDetailSerializer, TenantAgentRuleSerializer, TenantAuthRefactorCreateSerializer, TenantAuthRefactorSerializer, TenantDesktopConfigSerializer, TenantPasswordConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer, TenantUserProfileConfigSerializer,
     UserNameRegisterRequestSerializer, MobileLoginResponseSerializer, MobileRegisterResponseSerializer,
     UserNameRegisterResponseSerializer, UserNameLoginResponseSerializer, TenantConfigSerializer,
     UserNameLoginRequestSerializer, TenantPasswordComplexitySerializer, TenantContactsConfigFunctionSwitchSerializer,
@@ -1205,6 +1205,57 @@ class TenantAuthRefactorView(generics.ListAPIView):
             item.as_dict() for item in TenantAuthFactor.active_objects.filter(tenant__uuid=tenant_uuid).order_by('-id').all()
         ]
         return rs
+
+@extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
+class TenantAgentRuleView(generics.ListAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = TenantAgentRuleDetailSerializer
+    pagination_class = DefaultListPaginator
+
+    def get_queryset(self):
+        tenant_uuid = self.kwargs['tenant_uuid']
+        return TenantAgentRule.active_objects.filter(tenant__uuid=tenant_uuid).order_by('-id')
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['tenant'] = Tenant.objects.filter(
+            uuid=self.kwargs['tenant_uuid']).first()
+        return context
+
+@extend_schema(
+    roles=['tenant admin', 'global admin'],
+    tags=['tenant']
+)
+class TenantAgentRuleCreateView(generics.CreateAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = TenantAgentRuleSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True),
+
+        tenant_uuid = kwargs.get("tenant_uuid")
+        tenant = Tenant.active_objects.get(uuid=tenant_uuid)
+
+        authfactor = TenantAgentRule(
+            **serializer.validated_data
+        )
+        authfactor.tenant=tenant
+        authfactor.save()
+
+        return JsonResponse(
+            data={
+                "error": 0,
+                "message": "创建成功"
+            }
+        )
+
 @extend_schema(
     roles=['tenant admin', 'global admin'],
     tags=['tenant']
