@@ -1,7 +1,9 @@
 
+from runtime import get_app_runtime
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import ChoiceField
 from tenant.models import (
-    Tenant, TenantConfig, TenantPasswordComplexity, TenantDesktopConfig,
+    Tenant, TenantAuthFactor, TenantConfig, TenantPasswordComplexity, TenantDesktopConfig,
     TenantPrivacyNotice, TenantContactsConfig, TenantContactsUserFieldConfig,
     TenantDevice, TenantUserProfileConfig
 )
@@ -393,6 +395,10 @@ class TenantUserProfileConfigSerializer(BaseDynamicFieldModelSerializer):
 
 class TenantAuthRefactorSerializer(serializers.Serializer):
 
+    id = serializers.IntegerField(
+        label=_("ID")
+    )
+
     name = serializers.CharField(
         label=_("名称")
     )
@@ -400,12 +406,36 @@ class TenantAuthRefactorSerializer(serializers.Serializer):
     is_open = serializers.BooleanField(
         label=_("是否启用")
     )
-    can_signin = serializers.BooleanField(
+
+    description = serializers.CharField(
+        label=_("描述")
+    )
+
+    is_support_registe = serializers.BooleanField(
         label=_("是否支持注册")
     )
-    can_auth = serializers.BooleanField(
+    is_support_auth = serializers.BooleanField(
         label=_("是否支持认证")
     )
+
+def get_authfactor_tyoe_choices():
+    from runtime import get_app_runtime
+    rs = ((item.name,item.id) for item in get_app_runtime().auth_factors)
+    print(rs)
+    return tuple(rs)
+
+class TenantAuthRefactorCreateSerializer(BaseDynamicFieldModelSerializer):
+
+    type =ChoiceField(
+        label=_("类型"),
+        choices=get_authfactor_tyoe_choices()
+    )
+    class Meta:
+        model = TenantAuthFactor
+        fields=["type","id","is_open"]
+        extra_kwargs = {
+            'uuid': {'read_only': True},
+        }
 
 class InfoVisibilitySerializer(serializers.Serializer):
     visible_type = serializers.ChoiceField(choices=(('所有人可见', '部分人可见')), label=_('可见类型'))

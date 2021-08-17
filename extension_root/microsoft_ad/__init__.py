@@ -17,6 +17,22 @@ class LdapServerExtension(InMemExtension):
             description='微软AD',
         )
 
+        runtime.register_auth_factor(
+            id='microsoft_ad_password',
+            name='微软AD：用户名密码',
+            is_support_registe=True,
+            is_support_auth=True,
+            description="由微软AD提供"
+        )
+
+        runtime.register_auth_factor(
+            id='ldapserver_password',
+            name='LDAP：用户名密码',
+            is_support_registe=True,
+            is_support_auth=True,
+            description="由Arkid LDAP server提供"
+        )
+
         super().start(runtime=runtime, *args, **kwargs)
 
     def teardown(self, runtime: Runtime, *args, **kwargs):  # pylint: disable=unused-argument

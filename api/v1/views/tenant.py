@@ -1,17 +1,18 @@
 import uuid
+from django.db import models
 from django.http.response import JsonResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from rest_framework.decorators import action
-from rest_framework import generics
+from rest_framework import generics, serializers
 from openapi.utils import extend_schema
 from rest_framework.response import Response
 from tenant.models import (
-    Tenant, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
+    Tenant, TenantAuthFactor, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
     TenantContactsConfig, TenantContactsUserFieldConfig, TenantPrivacyNotice, TenantUserProfileConfig,
-    TenantDevice, TenantPasswordConfig, 
+    TenantDevice, TenantPasswordConfig,
 )
 from api.v1.serializers.tenant import (
-    TenantAuthRefactorSerializer, TenantDesktopConfigSerializer, TenantPasswordConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer, TenantUserProfileConfigSerializer,
+    TenantAuthRefactorCreateSerializer, TenantAuthRefactorSerializer, TenantDesktopConfigSerializer, TenantPasswordConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer, TenantUserProfileConfigSerializer,
     UserNameRegisterRequestSerializer, MobileLoginResponseSerializer, MobileRegisterResponseSerializer,
     UserNameRegisterResponseSerializer, UserNameLoginResponseSerializer, TenantConfigSerializer,
     UserNameLoginRequestSerializer, TenantPasswordComplexitySerializer, TenantContactsConfigFunctionSwitchSerializer,
@@ -34,7 +35,7 @@ from common.code import Code
 from .base import BaseViewSet, BaseTenantViewSet
 from app.models import App
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from drf_spectacular.utils import extend_schema_view
+from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema_view
 from django.urls import reverse
 from common import loginpage as lp
 
@@ -42,8 +43,10 @@ import datetime
 
 
 @extend_schema_view(
-    retrieve=extend_schema(roles=['general user', 'tenant admin', 'global admin']),
-    destroy=extend_schema(roles=['general user', 'tenant admin', 'global admin']),
+    retrieve=extend_schema(
+        roles=['general user', 'tenant admin', 'global admin']),
+    destroy=extend_schema(
+        roles=['general user', 'tenant admin', 'global admin']),
     partial_update=extend_schema(
         roles=['general user', 'tenant admin', 'global admin']
     ),
@@ -272,7 +275,8 @@ class TenantViewSet(BaseViewSet):
             )
         # 判断注册次数
         login_config = self.get_login_config(pk)
-        is_open_register_limit = login_config.get('is_open_register_limit', False)
+        is_open_register_limit = login_config.get(
+            'is_open_register_limit', False)
         register_time_limit = login_config.get('register_time_limit', 1)
         register_count_limit = login_config.get('register_count_limit', 10)
         if is_open_register_limit is True:
@@ -302,7 +306,8 @@ class TenantViewSet(BaseViewSet):
         need_complete_profile_after_register = login_config.get(
             'need_complete_profile_after_register'
         )
-        can_skip_complete_profile = login_config.get('can_skip_complete_profile')
+        can_skip_complete_profile = login_config.get(
+            'can_skip_complete_profile')
         return JsonResponse(
             data={
                 'error': Code.OK.value,
@@ -326,7 +331,8 @@ class TenantViewSet(BaseViewSet):
         ip = self.get_client_ip(request)
         from django.db.models import Q
 
-        email_code_key = RegisterEmailClaimSerializer.gen_email_verify_code_key(email)
+        email_code_key = RegisterEmailClaimSerializer.gen_email_verify_code_key(
+            email)
         cache_code = self.runtime.cache_provider.get(email_code_key)
         if code != '123456' and (code is None or str(cache_code) != code):
             return JsonResponse(
@@ -363,7 +369,8 @@ class TenantViewSet(BaseViewSet):
             )
         # 判断注册次数
         login_config = self.get_login_config(pk)
-        is_open_register_limit = login_config.get('is_open_register_limit', False)
+        is_open_register_limit = login_config.get(
+            'is_open_register_limit', False)
         register_time_limit = login_config.get('register_time_limit', 1)
         register_count_limit = login_config.get('register_count_limit', 10)
         if is_open_register_limit is True:
@@ -393,7 +400,8 @@ class TenantViewSet(BaseViewSet):
         need_complete_profile_after_register = login_config.get(
             'need_complete_profile_after_register'
         )
-        can_skip_complete_profile = login_config.get('can_skip_complete_profile')
+        can_skip_complete_profile = login_config.get(
+            'can_skip_complete_profile')
         return JsonResponse(
             data={
                 'error': Code.OK.value,
@@ -639,7 +647,8 @@ class TenantViewSet(BaseViewSet):
         """
         login_config = self.get_login_config(tenant_uuid)
         is_open_authcode = login_config.get('is_open_authcode', False)
-        error_number_open_authcode = login_config.get('error_number_open_authcode', 0)
+        error_number_open_authcode = login_config.get(
+            'error_number_open_authcode', 0)
         ip = self.get_client_ip(request)
         # 根据配置信息生成表单
         names = []
@@ -715,7 +724,8 @@ class TenantViewSet(BaseViewSet):
             submit=lp.Button(
                 label='注册',
                 http=lp.ButtonHttp(
-                    url=reverse("api:tenant-secret-register", args=[tenant_uuid])
+                    url=reverse("api:tenant-secret-register",
+                                args=[tenant_uuid])
                     + f'?field_name={native_field_name}',
                     method='post',
                     params={
@@ -728,7 +738,8 @@ class TenantViewSet(BaseViewSet):
         )
 
     def custom_field_register_form(self, tenant_uuid, custom_field_uuid):
-        custom_field = CustomField.objects.filter(uuid=custom_field_uuid).first()
+        custom_field = CustomField.objects.filter(
+            uuid=custom_field_uuid).first()
         custom_field_name = custom_field.name
         return lp.LoginForm(
             label=f'{custom_field_name}注册',
@@ -752,7 +763,8 @@ class TenantViewSet(BaseViewSet):
             submit=lp.Button(
                 label='注册',
                 http=lp.ButtonHttp(
-                    url=reverse("api:tenant-secret-register", args=[tenant_uuid])
+                    url=reverse("api:tenant-secret-register",
+                                args=[tenant_uuid])
                     + f'?field_uuid={custom_field_uuid}&is_custom_field=true',
                     method='post',
                     params={
@@ -783,7 +795,8 @@ class TenantViewSet(BaseViewSet):
         # 图片验证码信息
         login_config = self.get_login_config(tenant.uuid)
         is_open_authcode = login_config.get('is_open_authcode', False)
-        error_number_open_authcode = login_config.get('error_number_open_authcode', 0)
+        error_number_open_authcode = login_config.get(
+            'error_number_open_authcode', 0)
         user = None
         for field_name in field_names:
             user = User.active_objects.filter(**{field_name: username}).first()
@@ -791,7 +804,8 @@ class TenantViewSet(BaseViewSet):
                 break
         # 自定义字段查找用户
         for field_uuid in field_uuids:
-            custom_user = CustomUser.valid_objects.filter(data__uuid=field_uuid).first()
+            custom_user = CustomUser.valid_objects.filter(
+                data__uuid=field_uuid).first()
             if custom_user:
                 user = custom_user.user
 
@@ -882,13 +896,15 @@ class TenantViewSet(BaseViewSet):
         if is_custom_field in ('True', 'true'):
             field_uuid = request.query_params.get('field_uuid')
             field_value = request.data.get(field_uuid)
-            custom_user = CustomUser.valid_objects.filter(data__uuid=field_uuid).first()
+            custom_user = CustomUser.valid_objects.filter(
+                data__uuid=field_uuid).first()
             if custom_user:
                 user = custom_user.user
         else:
             field_name = request.query_params.get('field_name')
             field_value = request.data.get(field_name)
-            user = User.active_objects.filter(**{field_name: field_value}).first()
+            user = User.active_objects.filter(
+                **{field_name: field_value}).first()
         password = request.data.get('password')
         ip = self.get_client_ip(request)
 
@@ -916,7 +932,8 @@ class TenantViewSet(BaseViewSet):
             )
         # 判断注册次数
         login_config = self.get_login_config(pk)
-        is_open_register_limit = login_config.get('is_open_register_limit', False)
+        is_open_register_limit = login_config.get(
+            'is_open_register_limit', False)
         register_time_limit = login_config.get('register_time_limit', 1)
         register_count_limit = login_config.get('register_count_limit', 10)
         if is_open_register_limit is True:
@@ -940,7 +957,8 @@ class TenantViewSet(BaseViewSet):
             **kwargs,
         )
         if is_custom_field:
-            CustomUser.objects.create(user=user, data={field_uuid: field_value})
+            CustomUser.objects.create(
+                user=user, data={field_uuid: field_value})
         user.tenants.add(tenant)
         user.set_password(password)
         user.save()
@@ -952,7 +970,8 @@ class TenantViewSet(BaseViewSet):
         need_complete_profile_after_register = login_config.get(
             'need_complete_profile_after_register'
         )
-        can_skip_complete_profile = login_config.get('can_skip_complete_profile')
+        can_skip_complete_profile = login_config.get(
+            'can_skip_complete_profile')
         return JsonResponse(
             data={
                 'error': Code.OK.value,
@@ -987,7 +1006,8 @@ class TenantConfigView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
-        tenant = Tenant.active_objects.filter(uuid=tenant_uuid).order_by('id').first()
+        tenant = Tenant.active_objects.filter(
+            uuid=tenant_uuid).order_by('id').first()
         if tenant:
             tenantconfig, is_created = TenantConfig.objects.get_or_create(
                 is_del=False,
@@ -1121,6 +1141,7 @@ class TenantContactsConfigFunctionSwitchView(generics.RetrieveUpdateAPIView):
         tenant_uuid = self.kwargs['tenant_uuid']
         return TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=0).first()
 
+
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantDesktopConfigView(generics.RetrieveUpdateAPIView):
 
@@ -1128,12 +1149,14 @@ class TenantDesktopConfigView(generics.RetrieveUpdateAPIView):
     authentication_classes = [ExpiringTokenAuthentication]
 
     serializer_class = TenantDesktopConfigSerializer
- 
+
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
-        config, iscreated = TenantDesktopConfig.active_objects.get_or_create(tenant=tenant)
+        config, iscreated = TenantDesktopConfig.active_objects.get_or_create(
+            tenant=tenant)
         return config
+
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantPasswordConfigView(generics.RetrieveUpdateAPIView):
@@ -1142,12 +1165,14 @@ class TenantPasswordConfigView(generics.RetrieveUpdateAPIView):
     authentication_classes = [ExpiringTokenAuthentication]
 
     serializer_class = TenantPasswordConfigSerializer
- 
+
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
-        config, iscreated = TenantPasswordConfig.active_objects.get_or_create(tenant=tenant)
+        config, iscreated = TenantPasswordConfig.active_objects.get_or_create(
+            tenant=tenant)
         return config
+
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantUserProfileConfigView(generics.RetrieveUpdateAPIView):
@@ -1156,12 +1181,14 @@ class TenantUserProfileConfigView(generics.RetrieveUpdateAPIView):
     authentication_classes = [ExpiringTokenAuthentication]
 
     serializer_class = TenantUserProfileConfigSerializer
- 
+
     def get_object(self):
         tenant_uuid = self.kwargs['tenant_uuid']
         tenant = Tenant.active_objects.get(uuid=tenant_uuid)
-        config, iscreated = TenantUserProfileConfig.active_objects.get_or_create(tenant=tenant)
+        config, iscreated = TenantUserProfileConfig.active_objects.get_or_create(
+            tenant=tenant)
         return config
+
 
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantAuthRefactorView(generics.ListAPIView):
@@ -1171,47 +1198,74 @@ class TenantAuthRefactorView(generics.ListAPIView):
 
     serializer_class = TenantAuthRefactorSerializer
     pagination_class = DefaultListPaginator
- 
-    def get_queryset(self):
-        return [
-            {
-                "name": "用户名/密码",
-                "is_open": True,
-                "can_signin": True,
-                "can_auth": True,
-            },
-            {
-                "name": "短信验证码",
-                "is_open": False,
-                "can_signin": True,
-                "can_auth": True,
-            },
-            {
-                "name": "邮箱验证码",
-                "is_open": True,
-                "can_signin": True,
-                "can_auth": True,
-            },
-            {
-                "name": "图形验证码",
-                "is_open": True,
-                "can_signin": False,
-                "can_auth": False,
-            },
-            {
-                "name": "指纹",
-                "is_open": True,
-                "can_signin": False,
-                "can_auth": True,
-            },
-            {
-                "name": "脸部识别",
-                "is_open": True,
-                "can_signin": False,
-                "can_auth": True,
-            },
-        ]
 
+    def get_queryset(self):
+        tenant_uuid = self.kwargs['tenant_uuid']
+        rs = [
+            item.as_dict() for item in TenantAuthFactor.active_objects.filter(tenant__uuid=tenant_uuid).order_by('-id').all()
+        ]
+        return rs
+@extend_schema(
+    roles=['tenant admin', 'global admin'],
+    tags=['tenant']
+)
+class TenantAuthRefactorCreateView(generics.CreateAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = TenantAuthRefactorCreateSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True),
+
+        tenant_uuid = kwargs.get("tenant_uuid")
+        tenant = Tenant.active_objects.get(uuid=tenant_uuid)
+
+        authfactor = TenantAuthFactor(
+            **serializer.validated_data
+        )
+        authfactor.tenant=tenant
+        authfactor.save()
+
+        return JsonResponse(
+            data={
+                "error": 0,
+                "message": "创建成功"
+            }
+        )
+
+@extend_schema(
+    roles=['tenant admin', 'global admin'],
+    tags=['tenant']
+)
+class TenantAuthRefactorUpdateView(generics.UpdateAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = TenantAuthRefactorCreateSerializer
+
+    def put(self, request,pk, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True),
+
+        tenant_uuid = kwargs.get("tenant_uuid")
+        tenant = Tenant.active_objects.get(uuid=tenant_uuid)
+
+        authfactor = TenantAuthFactor(
+            **serializer.validated_data
+        )
+        authfactor.tenant=tenant
+        authfactor.save()
+
+        return JsonResponse(
+            data={
+                "error": 0,
+                "message": "创建成功"
+            }
+        )
 @extend_schema(roles=['tenant admin', 'global admin'], tags=['tenant'])
 class TenantContactsConfigInfoVisibilityDetailView(generics.RetrieveUpdateAPIView):
 
@@ -1267,7 +1321,8 @@ class TenantContactsGroupView(generics.ListAPIView):
         # {
         #     "is_open": true
         # }
-        config = TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=0).first()
+        config = TenantContactsConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid, config_type=0).first()
         return config.data
 
     def get_group_visible(self, tenant_uuid):
@@ -1280,14 +1335,16 @@ class TenantContactsGroupView(generics.ListAPIView):
         #     "assign_group": [],
         #     "assign_user": []
         # }
-        config = TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=1).first()
+        config = TenantContactsConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid, config_type=1).first()
         return config.data
 
     def get_queryset(self):
 
         parent = self.request.query_params.get('parent', None)
         user = self.request.user
-        tenant = Tenant.active_objects.filter(uuid=self.kwargs['tenant_uuid']).first()
+        tenant = Tenant.active_objects.filter(
+            uuid=self.kwargs['tenant_uuid']).first()
 
         kwargs = {
             'tenant__uuid': self.kwargs['tenant_uuid'],
@@ -1316,7 +1373,8 @@ class TenantContactsGroupView(generics.ListAPIView):
                         # 递归查询(下下级不筛选)
                         if not parent:
                             # 如果是一级，就只能看到下属分组
-                            child_groups = Group.valid_objects.filter(parent__in=groups)
+                            child_groups = Group.valid_objects.filter(
+                                parent__in=groups)
                             for child_group in child_groups:
                                 uuid = child_group.uuid_hex
                                 if uuid not in uuids:
@@ -1368,14 +1426,16 @@ class TenantContactsUserView(generics.ListAPIView):
         # {
         #     "is_open": true
         # }
-        config = TenantContactsConfig.active_objects.filter(tenant__uuid=tenant_uuid, config_type=0).first()
+        config = TenantContactsConfig.active_objects.filter(
+            tenant__uuid=tenant_uuid, config_type=0).first()
         return config.data
 
     def get_queryset(self):
 
         group_uuid = self.request.query_params.get('group_uuid', None)
         user = self.request.user
-        tenant = Tenant.active_objects.filter(uuid=self.kwargs['tenant_uuid']).first()
+        tenant = Tenant.active_objects.filter(
+            uuid=self.kwargs['tenant_uuid']).first()
         kwargs = {
             'tenants__uuid': self.kwargs['tenant_uuid'],
             'groups__uuid': group_uuid,
@@ -1545,7 +1605,8 @@ class TenantDeviceListView(generics.ListCreateAPIView):
         tenant_uuid = self.kwargs['tenant_uuid']
         device_type = self.request.query_params.get('device_type', None)
         system_version = self.request.query_params.get('system_version', None)
-        browser_version = self.request.query_params.get('browser_version', None)
+        browser_version = self.request.query_params.get(
+            'browser_version', None)
         ip = self.request.query_params.get('ip', None)
         mac_address = self.request.query_params.get('mac_address', None)
         device_number = self.request.query_params.get('device_number', None)
@@ -1568,7 +1629,8 @@ class TenantDeviceListView(generics.ListCreateAPIView):
             kwargs['device_number'] = device_number
         if device_id is not None:
             kwargs['device_id'] = device_id
-        teanntdevices = TenantDevice.active_objects.filter(**kwargs).order_by('-id')
+        teanntdevices = TenantDevice.active_objects.filter(
+            **kwargs).order_by('-id')
         if account_id is not None:
             uuids = []
             for teanntdevice in teanntdevices:
@@ -1581,7 +1643,8 @@ class TenantDeviceListView(generics.ListCreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['tenant'] = Tenant.objects.filter(uuid=self.kwargs['tenant_uuid']).first()
+        context['tenant'] = Tenant.objects.filter(
+            uuid=self.kwargs['tenant_uuid']).first()
         return context
 
 
@@ -1631,14 +1694,16 @@ class TenantDeviceExportView(generics.RetrieveAPIView):
             kwargs['device_number'] = device_number
         if device_id is not None:
             kwargs['device_id'] = device_id
-        teanntdevices = TenantDevice.active_objects.filter(**kwargs).order_by('-id')
+        teanntdevices = TenantDevice.active_objects.filter(
+            **kwargs).order_by('-id')
         if account_id is not None:
             uuids = []
             for teanntdevice in teanntdevices:
                 account_ids = teanntdevice.account_ids
                 if account_id in account_ids:
                     uuids.append(teanntdevice.uuid)
-            teanntdevices = TenantDevice.active_objects.filter(uuid__in=uuids).order_by('-id')
+            teanntdevices = TenantDevice.active_objects.filter(
+                uuid__in=uuids).order_by('-id')
         # 导出
         data = TenantDeviceResource().export(teanntdevices)
         export_data = data.csv
@@ -1646,5 +1711,6 @@ class TenantDeviceExportView(generics.RetrieveAPIView):
         response = HttpResponse(export_data, content_type=content_type)
         date_str = datetime.datetime.now().strftime('%Y-%m-%d')
         filename = '%s-%s.%s' % ('Device', date_str, 'csv')
-        response['Content-Disposition'] = 'attachment; filename="%s"' % (filename)
+        response['Content-Disposition'] = 'attachment; filename="%s"' % (
+            filename)
         return response

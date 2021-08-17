@@ -1,7 +1,9 @@
+from auth_factor.models import AuthFactor
 from authorization_agent.models import AuthorizationAgent
 from typing import Optional, List, Dict, TypeVar, Generic
 from collections import OrderedDict
 from common.provider import (
+    AuthFactorProvider,
     AuthorizationAgentProvider,
     SMSProvider,
     CacheProvider,
@@ -35,6 +37,9 @@ class Runtime:
 
     authorization_servers: List[AuthorizationServer] = []
     authorization_agents: List[AuthorizationAgent] = []
+    auth_factors: List[AuthFactor]=[]
+    auth_factor_types:List[str]=[]
+    auth_factor_mappings:Dict[str,AuthFactor] = {}
 
     mfa_providers: Optional[List] = None
 
@@ -184,6 +189,48 @@ class Runtime:
             if agent.id == id:
                 self.authorization_agents.remove(agent)
         print('logout_authorization_agent:', name)
+
+    def register_auth_factor(
+        self,
+        id:str,
+        name:str,
+        is_support_registe:bool,
+        is_support_auth:bool,
+        description: str,
+        provider: Optional[AuthFactorProvider] = None,
+    ):
+        for auth_factor in self.auth_factors:
+            if auth_factor.id == id:
+                return  # raise DuplicatedIdException(f'duplicated extension: {server.id} {server.name}')
+
+        auth_factor = AuthFactor(
+            id=id,
+            name=name,
+            is_support_auth=is_support_auth,
+            is_support_registe=is_support_registe,
+            description=description,
+            provider=provider,
+        )
+        self.auth_factors.append(auth_factor)
+        self.auth_factor_types.append(id)
+        self.auth_factor_mappings[name]=auth_factor
+
+    def logout_auth_factor(
+        self,
+        id: str,
+        name: str,
+        is_support_registe:bool,
+        is_support_auth:bool,
+        description: str,
+        provider: Optional[AuthFactorProvider] = None,
+    ):
+        for auth_factor in self.auth_factors:
+            if auth_factor.id == id:
+                self.auth_factors.remove(auth_factor)
+                self.auth_factor_types.remove(id)
+                self.auth_factor_mappings.pop(id)
+
+        print('logout_auth_factors:', name)
 
     def register_route(self, urlpatterns: List, namespace: str = 'global') -> any:
         assert namespace in ['global', 'tenant', 'local']
