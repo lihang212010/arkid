@@ -566,3 +566,27 @@ class TenantDeviceSerializer(BaseDynamicFieldModelSerializer):
             **validated_data
         )
         return device
+
+
+class LogConfigSerializer(serializers.Serializer):
+    log_api = serializers.CharField(label=_('日志读取API'), read_only=True)
+    log_retention_period = serializers.IntegerField(label=_('日志保留时间(天)'))
+
+
+class TenantLogConfigSerializer(BaseDynamicFieldModelSerializer):
+
+    data = LogConfigSerializer()
+
+    class Meta:
+        model = TenantLogConfig
+
+        fields = ('data', )
+
+    def update(self, instance, validated_data):
+        data = validated_data.get('data')
+        instance.data = {
+            'log_api': data.get('log_api'),
+            'log_retention_period': data.get('log_retention_period'),
+        }
+        instance.save()
+        return instance

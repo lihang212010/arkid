@@ -1,4 +1,5 @@
 import uuid
+import urllib
 from django.http.response import JsonResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from rest_framework.decorators import action
@@ -8,7 +9,7 @@ from rest_framework.response import Response
 from tenant.models import (
     Tenant, TenantConfig, TenantDesktopConfig, TenantPasswordComplexity,
     TenantContactsConfig, TenantContactsUserFieldConfig, TenantPrivacyNotice, TenantUserProfileConfig,
-    TenantDevice, TenantPasswordConfig, 
+    TenantDevice, TenantPasswordConfig, TenantLogConfig,
 )
 from api.v1.serializers.tenant import (
     TenantAuthRefactorSerializer, TenantDesktopConfigSerializer, TenantPasswordConfigSerializer, TenantSerializer, MobileLoginRequestSerializer, MobileRegisterRequestSerializer, TenantUserProfileConfigSerializer,
@@ -17,7 +18,7 @@ from api.v1.serializers.tenant import (
     UserNameLoginRequestSerializer, TenantPasswordComplexitySerializer, TenantContactsConfigFunctionSwitchSerializer,
     TenantContactsConfigInfoVisibilitySerializer, TenantContactsConfigGroupVisibilitySerializer, ContactsGroupSerializer,
     ContactsUserSerializer, TenantContactsUserTagsSerializer, TenantPrivacyNoticeSerializer,
-    TenantDeviceSerializer,
+    TenantDeviceSerializer, TenantLogConfigSerializer,
 )
 from api.v1.serializers.app import AppBaseInfoSerializer
 from api.v1.serializers.sms import RegisterSMSClaimSerializer, LoginSMSClaimSerializer
@@ -37,6 +38,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from drf_spectacular.utils import extend_schema_view
 from django.urls import reverse
 from common import loginpage as lp
+from config import get_app_config
 
 import datetime
 
@@ -1648,3 +1650,37 @@ class TenantDeviceExportView(generics.RetrieveAPIView):
         filename = '%s-%s.%s' % ('Device', date_str, 'csv')
         response['Content-Disposition'] = 'attachment; filename="%s"' % (filename)
         return response
+
+
+
+@extend_schema(roles=['general user', 'tenant admin', 'global admin'], tags=['tenant'])
+class TenantLogConfigView(generics.RetrieveUpdateAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [ExpiringTokenAuthentication]
+
+    serializer_class = TenantLogConfigSerializer
+
+    def get_object(self):
+        tenant_uuid = self.kwargs['tenant_uuid']
+        tenant = Tenant.objects.filter(uuid=tenant_uuid).first()
+        log_config, is_created = TenantLogConfig.objects.get_or_create(
+            is_del=False,
+            tenant=tenant,
+        )
+
+        frontend_host = get_app_config().get_frontend_host()
+        path = f'/api/v1/tenant/{tenant_uuid}/log'
+        url = urllib.parse.urljoin(frontend_host, path)
+
+        data = log_config.data
+        if is_created is True:
+            data['log_api'] = url
+            data['log_retention_period'] = 30
+        else:
+            data['log_api'] = url
+            if 'log_retention_period' not in data:
+                data['log_retention_period'] = 30
+
+        log_config.save()
+        return log_config

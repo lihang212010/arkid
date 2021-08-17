@@ -184,3 +184,12 @@ class TenantDevice(BaseModel):
     def tenant_uuid(self):
         return self.tenant.uuid
 
+
+class TenantLogConfig(BaseModel):
+
+    tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, verbose_name='租户')
+    data = models.JSONField(blank=True, default=dict)
+
+    @property
+    def tenant_uuid(self):
+        return self.tenant.uuid
