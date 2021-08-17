@@ -406,7 +406,7 @@ class TenantUserProfileConfigSerializer(BaseDynamicFieldModelSerializer):
 class TenantAuthRefactorSerializer(serializers.Serializer):
 
     id = serializers.IntegerField(
-        label=_("ID")
+        label=_("唯一标识")
     )
 
     name = serializers.CharField(
