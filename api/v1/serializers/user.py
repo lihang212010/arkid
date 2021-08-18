@@ -10,7 +10,7 @@ from api.v1.fields.custom import (
     create_mobile_field,
     create_password_field,
     create_title_field,
-    create_custom_dict_field
+    create_custom_dict_field,
 )
 from ..pages import group, permission
 from django.utils.translation import gettext_lazy as _
