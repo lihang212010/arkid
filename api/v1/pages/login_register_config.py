@@ -5,7 +5,7 @@ path = 'login_register_config'
 name = '登录注册配置'
 
 login_register_config_tag = 'login_register_config'
-login_register_config_name = '登录注册配置'
+login_register_config_name = '登录注册插件配置'
 
 extend_schema_tags(
     login_register_config_tag,
@@ -20,12 +20,21 @@ extend_schema_tags(
             'create': {
                 'tag': 'login_register_config.create'
             }
+        },
+        'local': {
+            'update': {
+                'tag': 'login_register_config.update'
+            },
+            'delete': {
+                'path': '/api/v1/tenant/{parent_lookup_tenant}/login_register_config/{id}/',
+                'method': 'delete'
+            }
         }
     },
 )
 
 login_register_config_create_tag = 'login_register_config.create'
-login_register_config_create_name = '创建登录注册配置信息'
+login_register_config_create_name = '创建登录注册插件配置信息'
 
 extend_schema_tags(
     login_register_config_create_tag,
@@ -46,7 +55,7 @@ extend_schema_tags(
 )
 
 login_register_config_update_tag = 'login_register_config.update'
-login_register_config_update_name = '编辑登录注册配置信息'
+login_register_config_update_name = '编辑登录注册插件配置信息'
 
 extend_schema_tags(
     login_register_config_update_tag,
@@ -55,15 +64,15 @@ extend_schema_tags(
         'type': 'form_page',
         'init': {
             'path': '/api/v1/tenant/{parent_lookup_tenant}/login_register_config/{id}/',
-            'method': 'get',
+            'method': 'get'
         },
         'global': {
             'update': {
                 'path': '/api/v1/tenant/{parent_lookup_tenant}/login_register_config/{id}/',
-                'method': 'put',
+                'method': 'put'
             }
-        },
-    },
+        }
+    }
 )
 
 tenant_register_privacy_notice_tag = 'tenant_register_privacy_notice'

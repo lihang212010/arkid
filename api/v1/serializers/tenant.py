@@ -24,7 +24,7 @@ from ..pages import group, user
 class TenantSerializer(BaseDynamicFieldModelSerializer):
 
     icon = create_upload_url_field(serializers.URLField)(
-        hint=_("请选择图标"), required=False
+        hint=_("请选择图标"), required=False, label=_('图标')
     )
 
     class Meta:

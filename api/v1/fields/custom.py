@@ -80,6 +80,7 @@ def create_hint_field(field_cls):
 
     return HintField
 
+
 def create_mobile_field(field_cls):
     @extend_schema_field(
         field={

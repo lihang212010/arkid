@@ -8,14 +8,15 @@ extend_schema_tags(
     tag,
     name,
     {
-        'type': 'form_page',
+        'type': 'tree_page',
         'init': {
-            'path': '/api/v1/tenant/{tenant_uuid}/contactsconfig/group_visibility/',
+            'path': '/api/v1/tenant/{parent_lookup_tenant}/group/',
             'method': 'get'
         },
         'local': {
             'update': {
-                'tag': 'contacts_group_config.update'
+                'tag': 'contacts_group_config.update',
+                'description': '设置可见性'
             }
         }
     }

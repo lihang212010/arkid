@@ -9,6 +9,7 @@ from api.v1.fields.custom import (
     create_hint_field,
     create_mobile_field,
     create_password_field,
+    create_title_field,
 )
 from ..pages import group, permission
 from django.utils.translation import gettext_lazy as _
@@ -49,12 +50,6 @@ class UserSerializer(BaseDynamicFieldModelSerializer):
         hint="请填写正确的电话格式",
         required=False,
         label=_('手机')
-    )
-
-    bind_info = create_mobile_field(serializers.CharField)(
-        hint="",
-        required=False,
-        label=_('绑定信息')
     )
 
     set_groups = create_foreign_key_field(serializers.ListField)(
@@ -106,7 +101,7 @@ class UserSerializer(BaseDynamicFieldModelSerializer):
 
         extra_kwargs = {
             'uuid': {'read_only': True},
-            'bind_info': {'read_only': True},
+            'bind_info': {'read_only': True, 'label': _('绑定信息')},
         }
 
     def get_groups(self, instance):
@@ -323,7 +318,6 @@ class UserInfoSerializer(BaseDynamicFieldModelSerializer):
         required=False,
     )
 
-
     class Meta:
         model = User
 
@@ -342,7 +336,7 @@ class UserInfoSerializer(BaseDynamicFieldModelSerializer):
         )
 
         extra_kwargs = {
-            'bind_info': {'read_only': True},
+            'bind_info': {'read_only': True, 'label': _('绑定信息')},
         }
 
 
