@@ -10,6 +10,7 @@ from api.v1.fields.custom import (
     create_mobile_field,
     create_password_field,
     create_title_field,
+    create_custom_dict_field
 )
 from ..pages import group, permission
 from django.utils.translation import gettext_lazy as _
@@ -74,7 +75,10 @@ class UserSerializer(BaseDynamicFieldModelSerializer):
         write_only=True,
     )
 
-    custom_user = CustomUserSerializer(many=False, required=False, allow_null=True)
+    custom_user = create_custom_dict_field(serializers.JSONField)(
+        hint=_("清添加自定义属性"),
+        required=False
+    )
 
     class Meta:
         model = User
