@@ -17,6 +17,10 @@ extend_schema_tags(
             'update': {
                 'tag': 'contacts_group_config.update',
                 'description': '设置可见性'
+            },
+            'children': {
+                'path': '/api/v1/tenant/{parent_lookup_tenant}/group/?parent={uuid}',
+                'method': 'get'
             }
         }
     }
