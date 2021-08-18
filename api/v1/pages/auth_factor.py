@@ -16,11 +16,11 @@ extend_schema_tags(
             'path': '/api/v1/tenant/{tenant_uuid}/authfactor/',
             'method': 'get'
         },
-        # 'local': {
-        #     'update': {
-        #         'tag': 'auth_factor_config.update'
-        #     },
-        # },
+        'local': {
+            'update': {
+                'tag': 'auth_factor_config.update'
+            }
+        },
         'global': {
             'create': {
                 'tag': 'auth_factor_config.create'
