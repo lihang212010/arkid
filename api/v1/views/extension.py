@@ -20,6 +20,28 @@ ExtensionPolymorphicProxySerializer = PolymorphicProxySerializer(
 )
 
 @extend_schema_view(
+    list=extend_schema(
+        roles=['global admin'],
+        parameters=[
+            OpenApiParameter(
+                name='tags',
+                type={'type': 'string'},
+                location=OpenApiParameter.QUERY,
+                required=False,
+            ),
+            OpenApiParameter(
+                name='type',
+                type={'type': 'string'},
+                location=OpenApiParameter.QUERY,
+                required=False,
+            ),
+            OpenApiParameter(
+                name='scope',
+                type={'type': 'string'},
+                location=OpenApiParameter.QUERY,
+                required=False,
+            ),
+        ]),
     destroy=extend_schema(roles=['global admin']),
     partial_update=extend_schema(roles=['global admin']),
 )
@@ -86,27 +108,6 @@ class ExtensionViewSet(BaseViewSet):
         return o
 
     @extend_schema(
-        roles=['global admin'],
-        parameters=[
-            OpenApiParameter(
-                name='tags',
-                type={'type': 'string'},
-                location=OpenApiParameter.QUERY,
-                required=False,
-            ),
-            OpenApiParameter(
-                name='type',
-                type={'type': 'string'},
-                location=OpenApiParameter.QUERY,
-                required=False,
-            ),
-            OpenApiParameter(
-                name='scope',
-                type={'type': 'string'},
-                location=OpenApiParameter.QUERY,
-                required=False,
-            ),
-        ],
         responses=ExtensionListSerializer
     )
     def list(self, request, *args, **kwargs):
