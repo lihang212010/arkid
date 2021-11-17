@@ -6,6 +6,7 @@ from api.v1.serializers.market_extension import MarketPlaceExtensionSerializer, 
 from rest_framework.decorators import action
 from openapi.utils import extend_schema
 from drf_spectacular.utils import OpenApiParameter
+from extension.models import Extension
 from rest_framework import generics
 from django.http.response import JsonResponse
 from rest_framework.permissions import IsAuthenticated
@@ -48,6 +49,15 @@ class MarketPlaceViewSet(viewsets.ReadOnlyModelViewSet):
         extension_type = self.request.query_params.get('type', '')
         scope = self.request.query_params.get('scope', '')
         extensions = find_available_extensions()
+        exs = Extension.valid_objects.filter()
+        for extension in extensions:
+            # 补充下查询条件
+            for ex in exs:
+                if ex.type == extension.name:
+                    extension.is_install = True
+                    break
+                else:
+                    extension.is_install = False
         if tags or extension_type or scope:
             result = []
             for extension in extensions:
@@ -88,7 +98,6 @@ class MarketPlaceViewSet(viewsets.ReadOnlyModelViewSet):
         for ext in extensions:
             if ext.name == self.kwargs['pk']:
                 return ext
-
         return None
 
 

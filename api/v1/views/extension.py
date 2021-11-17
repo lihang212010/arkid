@@ -5,7 +5,7 @@ from drf_spectacular.utils import PolymorphicProxySerializer
 from extension.models import Extension
 from runtime import get_app_runtime
 from django.http.response import JsonResponse
-from drf_spectacular.utils import extend_schema_view
+from drf_spectacular.utils import extend_schema_view, OpenApiParameter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_expiring_authtoken.authentication import ExpiringTokenAuthentication
 from django.utils.translation import gettext_lazy as _
@@ -20,6 +20,28 @@ ExtensionPolymorphicProxySerializer = PolymorphicProxySerializer(
 )
 
 @extend_schema_view(
+    list=extend_schema(
+        roles=['global admin'],
+        parameters=[
+            OpenApiParameter(
+                name='tags',
+                type={'type': 'string'},
+                location=OpenApiParameter.QUERY,
+                required=False,
+            ),
+            OpenApiParameter(
+                name='type',
+                type={'type': 'string'},
+                location=OpenApiParameter.QUERY,
+                required=False,
+            ),
+            OpenApiParameter(
+                name='scope',
+                type={'type': 'string'},
+                location=OpenApiParameter.QUERY,
+                required=False,
+            ),
+        ]),
     destroy=extend_schema(roles=['global admin']),
     partial_update=extend_schema(roles=['global admin']),
 )
@@ -31,7 +53,52 @@ class ExtensionViewSet(BaseViewSet):
     serializer_class = ExtensionSerializer
 
     def get_queryset(self):
-        return Extension.valid_objects.filter()
+        from extension.utils import find_available_extensions
+        tags = self.request.query_params.get('tags', '')
+        extension_type = self.request.query_params.get('type', '')
+        scope = self.request.query_params.get('scope', '')
+        if tags or extension_type or scope:
+            extensions = find_available_extensions()
+            result = []
+            for extension in extensions:
+                if tags and extension_type and scope:
+                    tags_cp = tags.split(',')
+                    extension_type_cp = extension_type.split(',')
+                    scope_cp = scope.split(',')
+                    if tags_cp and extension.tags in tags_cp and extension_type_cp and extension.type in extension_type_cp and scope_cp and extension.scope in scope_cp:
+                        result.append(extension)
+                elif tags and extension_type:
+                    tags_cp = tags.split(',')
+                    extension_type_cp = extension_type.split(',')
+                    if tags_cp and extension.tags in tags_cp and extension_type_cp and extension.type in extension_type_cp:
+                        result.append(extension)
+                elif tags and scope:
+                    tags_cp = tags.split(',')
+                    scope_cp = scope.split(',')
+                    if tags_cp and extension.tags in tags_cp and scope_cp and extension.scope in scope_cp:
+                        result.append(extension)
+                elif tags:
+                    tags_cp = tags.split(',')
+                    if tags_cp and extension.tags in tags_cp:
+                        result.append(extension)
+                elif scope:
+                    scope_cp = scope.split(',')
+                    if scope_cp and extension.scope in scope_cp:
+                        result.append(extension)
+                elif extension_type:
+                    extension_type_cp = extension_type.split(',')
+                    if extension_type_cp and extension.type in extension_type_cp:
+                        result.append(extension)
+            extensions = result
+            exs = Extension.valid_objects.filter()
+            uuids = []
+            for ex in exs:
+                for extension in extensions:
+                    if extension.name == ex.type:
+                        uuids.append(ex.uuid)
+            return exs.filter(uuid__in=uuids)
+        else:
+            return Extension.valid_objects.filter()
 
     def get_object(self):
         o = Extension.valid_objects.filter(
@@ -41,7 +108,6 @@ class ExtensionViewSet(BaseViewSet):
         return o
 
     @extend_schema(
-        roles=['global admin'],
         responses=ExtensionListSerializer
     )
     def list(self, request, *args, **kwargs):

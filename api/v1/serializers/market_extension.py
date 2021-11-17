@@ -14,6 +14,7 @@ class MarketPlaceExtensionSerializer(serializers.Serializer):
     tags = serializers.CharField()
     type = serializers.CharField()
     scope = serializers.CharField()
+    is_install = serializers.BooleanField()
 
     # class Meta:
 
