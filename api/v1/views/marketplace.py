@@ -88,7 +88,6 @@ class MarketPlaceViewSet(viewsets.ReadOnlyModelViewSet):
         for ext in extensions:
             if ext.name == self.kwargs['pk']:
                 return ext
-
         return None
 
 

@@ -12,6 +12,9 @@ class ExtensionSerializer(BaseDynamicFieldModelSerializer):
     homepage = serializers.CharField(source='inmem.homepage', read_only=True)
     logo = serializers.CharField(source='inmem.logo', read_only=True)
     maintainer = serializers.CharField(source='inmem.maintainer', read_only=True)
+    tags = serializers.CharField(source='inmem.tags', read_only=True)
+    extension_type = serializers.CharField(source='inmem.type', read_only=True)
+    scope = serializers.CharField(source='inmem.scope', read_only=True)
     is_active = serializers.BooleanField(label=_('是否启用'))
 
     class Meta:
@@ -26,6 +29,9 @@ class ExtensionSerializer(BaseDynamicFieldModelSerializer):
             'homepage',
             'logo',
             'maintainer',
+            'tags',
+            'extension_type',
+            'scope',
             'is_active',
             'data',
         )
