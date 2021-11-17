@@ -8,15 +8,15 @@ extend_schema_tags(
     tag,
     name,
     {
-        'type':'table_page',
+        'type':'dashboard_page',
         'init': {
             'path': '/api/v1/tenant/{parent_lookup_tenant}/extension/',
             'method': 'get'
         },
         'global': {
             'create': {
-                'tag': 'extension.create',
-                'description': '添加系统插件',
+                'to': 'marketplace',
+                'description': '添加插件',
                 'icon': 'el-icon-plus'
             }
         },
@@ -31,28 +31,6 @@ extend_schema_tags(
                 'method': 'delete',
                 'description': '删除',
                 'icon': 'el-icon-delete'
-            }
-        }
-    }
-)
-
-extension_create_tag = 'extension.create'
-extension_create_name = '创建系统插件'
-
-extend_schema_tags(
-    extension_create_tag,
-    extension_create_name,
-    {
-        'type': 'form_page',
-        'init': {
-            'path': '/api/v1/tenant/{parent_lookup_tenant}/extension/',
-            'method': 'post'
-        },
-        'global': {
-            'create': {
-                'path': '/api/v1/tenant/{parent_lookup_tenant}/extension/',
-                'method': 'post',
-                'description': '确定'
             }
         }
     }

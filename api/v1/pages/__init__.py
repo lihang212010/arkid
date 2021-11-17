@@ -18,7 +18,7 @@ from . import (
     group_permission,
     login_register_config,
     log_config,
-    maketplace,
+    marketplace,
     mine,
     other_auth_factor,
     permission,
@@ -189,7 +189,7 @@ root_add_routers(
                             icon='list',
                         ),
                         PageRouter(
-                            page=maketplace,
+                            page=marketplace,
                             icon='list',
                         ),
                     ],
