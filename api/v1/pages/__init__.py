@@ -18,7 +18,6 @@ from . import (
     group_permission,
     login_register_config,
     log_config,
-    marketplace,
     mine,
     other_auth_factor,
     permission,
@@ -179,25 +178,8 @@ root_add_routers(
             name='平台管理',
             icon='setting',
             children=[
-                Router(
-                    path='extension',
-                    name='插件管理',
-                    icon='list',
-                    children=[
-                        PageRouter(
-                            page=extension,
-                            icon='list',
-                        ),
-                        PageRouter(
-                            page=marketplace,
-                            icon='list',
-                        ),
-                    ],
-                ),
-                PageRouter(
-                    page=tenant_switch,
-                    icon='setting',
-                )
+                PageRouter(page=extension, icon='list'),
+                PageRouter(page=tenant_switch, icon='setting')
             ],
         ),
     ]
