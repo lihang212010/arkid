@@ -15,8 +15,9 @@ extend_schema_tags(
         },
         'local': {
             'install': {
-                'path': '/api/v1/marketplace/',
-                'method': 'post'
+                'path': '/api/v1/tenant/{parent_lookup_tenant}/extension/',
+                'method': 'put',
+                'description': '点击安装'
             },
             'update': {
                 'tag': 'extension.update',
@@ -40,12 +41,12 @@ extend_schema_tags(
     {
         'type': 'form_page',
         'init': {
-            'path': '/api/v1/tenant/{parent_lookup_tenant}/extension/',
+            'path': '/api/v1/tenant/{parent_lookup_tenant}/extension/{id}/',
             'method': 'get'
         },
         'global': {
             'update': {
-                'path': '/api/v1/tenant/{parent_lookup_tenant}/extension/',
+                'path': '/api/v1/tenant/{parent_lookup_tenant}/extension/{id}/',
                 'method': 'put',
                 'description': '确定'
             }
