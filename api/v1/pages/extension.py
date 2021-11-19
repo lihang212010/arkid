@@ -16,7 +16,7 @@ extend_schema_tags(
         'local': {
             'install': {
                 'path': '/api/v1/tenant/{parent_lookup_tenant}/extension/',
-                'method': 'put',
+                'method': 'post',
                 'description': '点击安装'
             },
             'update': {
