@@ -1,6 +1,8 @@
 from .base import BaseViewSet
 from rest_framework import viewsets
+from common.paginator import DefaultListPaginator
 from common.extension import InMemExtension
+from extension.models import Extension
 from extension.utils import find_available_extensions
 from api.v1.serializers.market_extension import MarketPlaceExtensionSerializer, MarketPlaceExtensionTagsSerializer
 from rest_framework.decorators import action
@@ -35,6 +37,22 @@ from rest_framework_expiring_authtoken.authentication import ExpiringTokenAuthen
                 location=OpenApiParameter.QUERY,
                 required=False,
             ),
+            OpenApiParameter(
+                name='installed',
+                type={'type': 'string'},
+                enum=['已安装','未安装'],
+                location=OpenApiParameter.QUERY,
+                description='是否已安装',
+                required=False,
+            ),
+            OpenApiParameter(
+                name='enabled',
+                type={'type': 'string'},
+                enum=['已启用','未启用'],
+                location=OpenApiParameter.QUERY,
+                description='是否已启用',
+                required=False,
+            ),
         ]
 )
 class MarketPlaceViewSet(viewsets.ReadOnlyModelViewSet):
@@ -43,53 +61,55 @@ class MarketPlaceViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [ExpiringTokenAuthentication]
 
     serializer_class = MarketPlaceExtensionSerializer
+    pagination_class = DefaultListPaginator
 
     def get_queryset(self):
         tags = self.request.query_params.get('tags', '')
         extension_type = self.request.query_params.get('type', '')
         scope = self.request.query_params.get('scope', '')
+        installed = self.request.query_params.get('installed', '')
+        enabled = self.request.query_params.get('enabled', '')
+
         extensions = find_available_extensions()
-        exs = Extension.valid_objects.filter()
+        installed_extensions = Extension.valid_objects.filter()
+        installed_extensions_dict = {ext.type: ext for ext in installed_extensions}
         for extension in extensions:
-            # 补充下查询条件
-            for ex in exs:
-                if ex.type == extension.name:
-                    extension.is_install = True
-                    break
-                else:
-                    extension.is_install = False
-        if tags or extension_type or scope:
+            ext = installed_extensions_dict.get(extension.name)
+            if ext:
+                extension.uuid = ext.uuid
+                extension.installed = '已安装'
+                extension.enabled = '已启用' if ext.is_active else '未启用'
+            else:
+                extension.uuid = ''
+                extension.installed = '未安装'
+                extension.enabled = '未启用'
+
+        if tags or extension_type or scope or installed or enabled:
             result = []
             for extension in extensions:
-                if tags and extension_type and scope:
-                    tags_cp = tags.split(',')
-                    extension_type_cp = extension_type.split(',')
-                    scope_cp = scope.split(',')
-                    if tags_cp and extension.tags in tags_cp and extension_type_cp and extension.type in extension_type_cp and scope_cp and extension.scope in scope_cp:
-                        result.append(extension)
-                elif tags and extension_type:
-                    tags_cp = tags.split(',')
-                    extension_type_cp = extension_type.split(',')
-                    if tags_cp and extension.tags in tags_cp and extension_type_cp and extension.type in extension_type_cp:
-                        result.append(extension)
-                elif tags and scope:
-                    tags_cp = tags.split(',')
-                    scope_cp = scope.split(',')
-                    if tags_cp and extension.tags in tags_cp and scope_cp and extension.scope in scope_cp:
-                        result.append(extension)
-                elif tags:
-                    tags_cp = tags.split(',')
-                    if tags_cp and extension.tags in tags_cp:
-                        result.append(extension)
-                elif scope:
-                    scope_cp = scope.split(',')
-                    if scope_cp and extension.scope in scope_cp:
-                        result.append(extension)
-                elif extension_type:
-                    extension_type_cp = extension_type.split(',')
-                    if extension_type_cp and extension.type in extension_type_cp:
-                        result.append(extension)
+                if tags:
+                    tags_list = tags.split(',')
+                    if extension.tags not in tags_list:
+                        continue
+                if extension_type:
+                    extension_type_list = extension_type.split(',')
+                    if extension.type not in extension_type_list:
+                        continue
+                if scope:
+                    scope_list = scope.split(',')
+                    if extension.scope not in scope_list:
+                        continue
+                if installed:
+                    installed_list = installed.split(',')
+                    if extension.installed not in installed_list:
+                        continue
+                if enabled:
+                    enabled_list = enabled.split(',')
+                    if extension.enabled not in enabled_list:
+                        continue
+                result.append(extension)
             extensions = result
+
         return extensions
 
     def get_object(self):

@@ -1,8 +1,8 @@
 name: ci
 
-on: 
+on:
   push:
-    branches: 
+    branches:
       - 'feature-*'
       - 'dev/*'
 jobs:
@@ -45,3 +45,4 @@ jobs:
           {"msg_type":"post","content":{"post":{"zh_cn":{"title": "${{ github.event.repository.name }}流水线状态通知",
           "content":[[{"tag":"text","text":"${{ github.event.repository.name }} 项目流水线有更新: "},
           {"tag":"a","text":"${{ github.event.ref }}分支 ci构建成功","href":"http://arkid.vtwo.longguikeji.com/"}]]}}}}
+          
