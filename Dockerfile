@@ -39,5 +39,5 @@ FROM build_deps as build
 ADD . .
 RUN pip install mysqlclient==1.4.6 $PIP; \
     chmod +x docker-entrypoint.sh
-ENTRYPOINT ["/var/arkid/docker-entrypoint.sh"]
+#ENTRYPOINT ["/var/arkid/docker-entrypoint.sh"]
 CMD ["tini", "--", "/usr/local/bin/python3.8", "manage.py", "runserver", "0.0.0.0:80"]

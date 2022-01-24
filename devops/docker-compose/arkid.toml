@@ -1,7 +1,7 @@
 name = "arkid v2"
 host = 'localhost:8989'
 frontend_host = 'localhost:8989'
-https_enabled = 0
+https_enabled = 1
 
 [email]
 host = "smtp.qq.com"

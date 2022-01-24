@@ -1,10 +1,11 @@
 # mysql database
+import os
 
-MYSQLHOST = os.getenv("MYSQL_HOST", "localhost")
+MYSQLHOST = os.getenv("MYSQL_HOST", "114.115.168.103")
 MYSQLPORT = os.getenv("MYSQL_PORT", "3306")
 MYSQLDATABASE = os.getenv("MYSQL_DATABASE", "arkid")
 MYSQLUSER = os.getenv("MYSQL_USER", "root")
-MYSQLPASSWORD = os.getenv("MYSQL_PASSWORD", "root")
+MYSQLPASSWORD = os.getenv("MYSQL_PASSWORD", "980207")
 
 DATABASES = {
     'default': {
@@ -23,7 +24,7 @@ DATABASES = {
 }
 
 # Redis cache
-REDISHOST = os.getenv("REDIS_HOST", "localhost")
+REDISHOST = os.getenv("REDIS_HOST", "114.115.168.103")
 REDISPASSWD = os.getenv("REDIS_PASSWD", None)
 
 REDIS_CONFIG = {

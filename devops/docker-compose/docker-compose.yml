@@ -25,12 +25,12 @@ services:
     entrypoint: ["/bin/bash", "/var/arkid/docker-entrypoint.sh"]
     command: ["supervisord"]
     environment:
-      - MYSQL_HOST=arkid-db
+      - MYSQL_HOST=114.115.168.103
       - MYSQL_PORT=3306
       - MYSQL_DATABASE=arkid
-      - MYSQL_USER=arkiduser
-      - MYSQL_PASSWORD=arkiduser
-      - REDIS_HOST=arkid-redis
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=980207
+      - REDIS_HOST=114.115.168.103
     networks:
       - arkid
     depends_on:
